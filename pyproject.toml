@@ -1,0 +1,6 @@
+[tool.pytest.ini_options]
+# Run from the project root so `from src import ...` resolves without install.
+pythonpath = ["."]
+testpaths = ["tests"]
+# Quiet, fast feedback; the suite is deterministic and needs no live API.
+addopts = "-q"

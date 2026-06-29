@@ -1,0 +1,30 @@
+
+===== run 2026-06-28T14:03:23.915658+00:00 =====
+model=gemini-3.1-flash-lite arms=['A', 'B', 'C'] seeds=[0, 1, 2, 3, 4] analyzer=real (cached Gemini)
+building feature store (summary embeddings)...
+
+--- ARM A (dense_dim=56) ---
+  [arm A seed 0] epochs=26 val_loss=0.6388 thr=0.35 | acc=0.7178 auc=0.5926 F1@55=0.0933 F1@13=0.2085
+  [arm A seed 1] epochs=23 val_loss=0.6387 thr=0.35 | acc=0.7178 auc=0.5990 F1@55=0.0994 F1@13=0.2341
+  [arm A seed 2] epochs=29 val_loss=0.6392 thr=0.35 | acc=0.7178 auc=0.5626 F1@55=0.0942 F1@13=0.2136
+  [arm A seed 3] epochs=17 val_loss=0.6389 thr=0.35 | acc=0.7178 auc=0.6182 F1@55=0.1289 F1@13=0.3220
+  [arm A seed 4] epochs=24 val_loss=0.6383 thr=0.35 | acc=0.7178 auc=0.5986 F1@55=0.0982 F1@13=0.2237
+  ARM A mean: acc=0.7178±0.0000 F1@55=0.1028±0.0132 F1@13=0.2404±0.0418
+
+--- ARM B (dense_dim=495) ---
+  [arm B seed 0] epochs=16 val_loss=0.6377 thr=0.35 | acc=0.7178 auc=0.5866 F1@55=0.0982 F1@13=0.2389
+  [arm B seed 1] epochs=22 val_loss=0.6383 thr=0.35 | acc=0.7178 auc=0.5909 F1@55=0.1425 F1@13=0.3455
+  [arm B seed 2] epochs=20 val_loss=0.6378 thr=0.30 | acc=0.7178 auc=0.5868 F1@55=0.1443 F1@13=0.3039
+  [arm B seed 3] epochs=25 val_loss=0.6386 thr=0.35 | acc=0.7178 auc=0.5800 F1@55=0.0982 F1@13=0.2182
+  [arm B seed 4] epochs=27 val_loss=0.6381 thr=0.35 | acc=0.7178 auc=0.5818 F1@55=0.1289 F1@13=0.3091
+  ARM B mean: acc=0.7178±0.0000 F1@55=0.1224±0.0205 F1@13=0.2831±0.0473
+
+--- ARM C (dense_dim=495) ---
+  [arm C seed 0] epochs=17 val_loss=0.6370 thr=0.30 | acc=0.7178 auc=0.6009 F1@55=0.1459 F1@13=0.3154
+  [arm C seed 1] epochs=58 val_loss=0.6222 thr=0.35 | acc=0.7178 auc=0.6012 F1@55=0.1318 F1@13=0.2935
+  [arm C seed 2] epochs=42 val_loss=0.6376 thr=0.35 | acc=0.7178 auc=0.5779 F1@55=0.1361 F1@13=0.3323
+  [arm C seed 3] epochs=51 val_loss=0.6360 thr=0.35 | acc=0.7178 auc=0.5715 F1@55=0.1243 F1@13=0.2958
+  [arm C seed 4] epochs=40 val_loss=0.6365 thr=0.35 | acc=0.7178 auc=0.5859 F1@55=0.1300 F1@13=0.3183
+  ARM C mean: acc=0.7178±0.0000 F1@55=0.1336±0.0072 F1@13=0.3110±0.0146
+
+wrote /Users/teme/MyFiles/temes_file/Univie/P2/CLAUDE/process-aware-kt/results/metrics.json

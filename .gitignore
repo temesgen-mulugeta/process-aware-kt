@@ -1,0 +1,24 @@
+# --- secrets ---
+.env
+
+# --- data (raw is cloned; large/derived artifacts are not committed) ---
+data/raw/
+data/processed/
+data/llm_features/
+
+# --- LLM cache & checkpoints ---
+*.cache
+*.pt
+*.ckpt
+checkpoints/
+
+# --- python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.ipynb_checkpoints/
+
+# --- os ---
+.DS_Store
