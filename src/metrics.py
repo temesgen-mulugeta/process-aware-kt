@@ -2,8 +2,8 @@
 metrics.py — correctness + deficiency metrics at 55-concept and 13-category levels.
 
 Kept separate from train.py so the metric definitions are easy to read and reuse.
-All deficiency metrics are computed over the masked associated-concept space
-(missing ⊂ associated); non-associated entries are always negative.
+Evaluation retains every gold label, including positives outside the prediction
+mask. Only predictions are constrained to associated concepts.
 """
 
 from __future__ import annotations

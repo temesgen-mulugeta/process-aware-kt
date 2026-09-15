@@ -1,5 +1,5 @@
-# Process-Aware KT prototype — pinned dependencies.
-# Versions reflect what the prototype was developed/tested against (June 2026).
+# Process-Aware KT prototype — compatible dependency ranges.
+# Exact experiment versions: results/revisions/environment.txt.
 # A fresh venv is recommended:  python -m venv .venv && source .venv/bin/activate
 
 torch>=2.2,<3.0
@@ -19,3 +19,6 @@ pytest>=7.4                     # run: pytest   (deterministic, no live API need
 # FUTURE / NOT USED IN THIS PROTOTYPE (see FINDINGS.md "How to extend this"):
 #   pykt-toolkit>=0.0.39         # stronger KT backbones (AKT, GKT, SAKT, DKVMN)
 # ---------------------------------------------------------------------------
+
+scipy>=1.11
+matplotlib>=3.8

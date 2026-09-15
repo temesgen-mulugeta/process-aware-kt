@@ -1,0 +1,50 @@
+[
+  {
+    "student_id": 3,
+    "seq_pos": 7,
+    "role": "training",
+    "outside_mask": [
+      "Expression and Operations with Symbols"
+    ]
+  },
+  {
+    "student_id": 3,
+    "seq_pos": 63,
+    "role": "training",
+    "outside_mask": [
+      "Basic Math Operations"
+    ]
+  },
+  {
+    "student_id": 3,
+    "seq_pos": 65,
+    "role": "training",
+    "outside_mask": [
+      "Basic Math Operations"
+    ]
+  },
+  {
+    "student_id": 3,
+    "seq_pos": 70,
+    "role": "training",
+    "outside_mask": [
+      "Basic Math Operations"
+    ]
+  },
+  {
+    "student_id": 3,
+    "seq_pos": 575,
+    "role": "validation",
+    "outside_mask": [
+      "Basic Math Operations"
+    ]
+  },
+  {
+    "student_id": 5,
+    "seq_pos": 634,
+    "role": "test",
+    "outside_mask": [
+      "Basic Math Operations"
+    ]
+  }
+]

@@ -1,0 +1,238 @@
+{
+  "seed": 0,
+  "threshold": 0.35,
+  "epochs": 16,
+  "best_val_loss": 0.6309685230255127,
+  "parameters": 149352,
+  "flat": {
+    "correct_acc": 0.7424242424242424,
+    "correct_auc": 0.35174069627851146,
+    "def_f1_55": 0.07012987012987013,
+    "def_prec_55": 0.06818181818181818,
+    "def_recall_55": 0.07272727272727272,
+    "def_f1_13": 0.13286713286713286,
+    "def_prec_13": 0.12087912087912088,
+    "def_recall_13": 0.15384615384615385
+  },
+  "per_category_f1": {
+    "Basic Arithmetic": 0.0,
+    "Prime Numbers": 0.0,
+    "Factors and Multiples": 0.0,
+    "Physics": 0.0,
+    "Ratio and Proportion": 0.0,
+    "Finance": 0.7272727272727273,
+    "Statistics and Probability": 0.0,
+    "Polynomials": 0.0,
+    "Sequences and Series": 0.0,
+    "Geometry": 0.0,
+    "Set Theory": 0.0,
+    "Permutations and Combinations": 1.0,
+    "Other": 0.0
+  },
+  "n_test_targets": 66,
+  "n_pos_labels": 8,
+  "held_student": 4,
+  "diagnostics": {
+    "categories": {
+      "Basic Arithmetic": {
+        "support": 0,
+        "tp": 0,
+        "fp": 1,
+        "fn": 0,
+        "tn": 65
+      },
+      "Prime Numbers": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 66
+      },
+      "Factors and Multiples": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 66
+      },
+      "Physics": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 66
+      },
+      "Ratio and Proportion": {
+        "support": 1,
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "tn": 65
+      },
+      "Finance": {
+        "support": 4,
+        "tp": 4,
+        "fp": 3,
+        "fn": 0,
+        "tn": 59
+      },
+      "Statistics and Probability": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 66
+      },
+      "Polynomials": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 66
+      },
+      "Sequences and Series": {
+        "support": 0,
+        "tp": 0,
+        "fp": 1,
+        "fn": 0,
+        "tn": 65
+      },
+      "Geometry": {
+        "support": 1,
+        "tp": 0,
+        "fp": 2,
+        "fn": 1,
+        "tn": 63
+      },
+      "Set Theory": {
+        "support": 0,
+        "tp": 0,
+        "fp": 1,
+        "fn": 0,
+        "tn": 65
+      },
+      "Permutations and Combinations": {
+        "support": 1,
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "tn": 65
+      },
+      "Other": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 66
+      }
+    },
+    "students": {
+      "4": {
+        "concept55": {
+          "macro_f1": 0.07012987012987013,
+          "macro_precision": 0.06818181818181818,
+          "macro_recall": 0.07272727272727272
+        },
+        "category13": {
+          "macro_f1": 0.13286713286713286,
+          "macro_precision": 0.12087912087912088,
+          "macro_recall": 0.15384615384615385
+        },
+        "per_category_f1": {
+          "Basic Arithmetic": 0.0,
+          "Prime Numbers": 0.0,
+          "Factors and Multiples": 0.0,
+          "Physics": 0.0,
+          "Ratio and Proportion": 0.0,
+          "Finance": 0.7272727272727273,
+          "Statistics and Probability": 0.0,
+          "Polynomials": 0.0,
+          "Sequences and Series": 0.0,
+          "Geometry": 0.0,
+          "Set Theory": 0.0,
+          "Permutations and Combinations": 1.0,
+          "Other": 0.0
+        },
+        "n_targets": 66,
+        "n_positive_concept_labels": 8
+      }
+    },
+    "calibration": {
+      "n": 88,
+      "ece": 0.25026020373810426,
+      "brier": 0.12274873495029302,
+      "bins": [
+        {
+          "low": 0.0,
+          "high": 0.1,
+          "n": 0,
+          "mean_probability": null,
+          "positive_rate": null
+        },
+        {
+          "low": 0.1,
+          "high": 0.2,
+          "n": 0,
+          "mean_probability": null,
+          "positive_rate": null
+        },
+        {
+          "low": 0.2,
+          "high": 0.3,
+          "n": 47,
+          "mean_probability": 0.27531498670578003,
+          "positive_rate": 0.02127659574468085
+        },
+        {
+          "low": 0.3,
+          "high": 0.4,
+          "n": 35,
+          "mean_probability": 0.33449873328208923,
+          "positive_rate": 0.11428571428571428
+        },
+        {
+          "low": 0.4,
+          "high": 0.5,
+          "n": 4,
+          "mean_probability": 0.40908390283584595,
+          "positive_rate": 0.75
+        },
+        {
+          "low": 0.5,
+          "high": 0.6,
+          "n": 2,
+          "mean_probability": 0.505986750125885,
+          "positive_rate": 0.0
+        },
+        {
+          "low": 0.6,
+          "high": 0.7,
+          "n": 0,
+          "mean_probability": null,
+          "positive_rate": null
+        },
+        {
+          "low": 0.7,
+          "high": 0.8,
+          "n": 0,
+          "mean_probability": null,
+          "positive_rate": null
+        },
+        {
+          "low": 0.8,
+          "high": 0.9,
+          "n": 0,
+          "mean_probability": null,
+          "positive_rate": null
+        },
+        {
+          "low": 0.9,
+          "high": 1.0,
+          "n": 0,
+          "mean_probability": null,
+          "positive_rate": null
+        }
+      ]
+    }
+  }
+}

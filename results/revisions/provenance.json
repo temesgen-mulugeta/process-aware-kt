@@ -1,0 +1,36 @@
+{
+  "base_commit": "39341baa9b18bc1223ad3c0b559e5cc4fc5f4139",
+  "source_sha256": "8baffd88837f6618378a80b7b9f5f5de1aed7c50afaa5861da09e6a5ef903b52",
+  "table_sha256": "5d86449f3082c04ce3553748618253d0d59ee063f1f4e3591f59ff9869836f21",
+  "cache_sha256": "5906e8db4279f9e6ef6369836844e3cc25f634d8f4898b5c0a45d7514d2834b3",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "model": "gemini-3.1-flash-lite",
+  "python": "3.11.11",
+  "torch": "2.14.0",
+  "numpy": "1.26.4",
+  "threads": 1,
+  "hidden": 64,
+  "dropout": 0.4,
+  "learning_rate": 0.001,
+  "max_epochs": 60,
+  "patience": 8,
+  "threshold_grid": [
+    0.1,
+    0.15,
+    0.2,
+    0.25,
+    0.3,
+    0.35,
+    0.4,
+    0.5
+  ],
+  "mock": false,
+  "loso_seed": 0,
+  "summary_model": "sentence-transformers/all-MiniLM-L6-v2"
+}

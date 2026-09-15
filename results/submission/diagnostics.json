@@ -1,0 +1,595 @@
+{
+  "mask_only": {
+    "concept55": {
+      "macro_f1": 0.15196927772012087,
+      "macro_precision": 0.11257445756478637,
+      "macro_recall": 0.37922077922077924
+    },
+    "category13": {
+      "macro_f1": 0.2749915584974367,
+      "macro_precision": 0.1824222785761247,
+      "macro_recall": 0.8461538461538461
+    },
+    "per_category_f1": {
+      "Basic Arithmetic": 0.12949640287769784,
+      "Prime Numbers": 0.4444444444444444,
+      "Factors and Multiples": 0.0,
+      "Physics": 0.10810810810810811,
+      "Ratio and Proportion": 0.18181818181818182,
+      "Finance": 0.3902439024390244,
+      "Statistics and Probability": 0.26666666666666666,
+      "Polynomials": 0.3333333333333333,
+      "Sequences and Series": 0.36363636363636365,
+      "Geometry": 0.3333333333333333,
+      "Set Theory": 0.16666666666666666,
+      "Permutations and Combinations": 0.8571428571428571,
+      "Other": 0.0
+    },
+    "n_targets": 404,
+    "n_positive_concept_labels": 59
+  },
+  "mask_only_consistent_targets": {
+    "excluded_targets": 1,
+    "metrics": {
+      "concept55": {
+        "macro_f1": 0.15207816073173946,
+        "macro_precision": 0.11258286728642461,
+        "macro_recall": 0.38181818181818183
+      },
+      "category13": {
+        "macro_f1": 0.2740140137505279,
+        "macro_precision": 0.181867258164217,
+        "macro_recall": 0.8461538461538461
+      },
+      "per_category_f1": {
+        "Basic Arithmetic": 0.11678832116788321,
+        "Prime Numbers": 0.4444444444444444,
+        "Factors and Multiples": 0.0,
+        "Physics": 0.10810810810810811,
+        "Ratio and Proportion": 0.18181818181818182,
+        "Finance": 0.3902439024390244,
+        "Statistics and Probability": 0.26666666666666666,
+        "Polynomials": 0.3333333333333333,
+        "Sequences and Series": 0.36363636363636365,
+        "Geometry": 0.3333333333333333,
+        "Set Theory": 0.16666666666666666,
+        "Permutations and Combinations": 0.8571428571428571,
+        "Other": 0.0
+      },
+      "n_targets": 403,
+      "n_positive_concept_labels": 58
+    }
+  },
+  "test_concept_positives": 59,
+  "reachable_test_concept_positives": 58,
+  "unreachable_test_targets": [
+    {
+      "student_id": 5,
+      "seq_pos": 634
+    }
+  ],
+  "sensitivity": {
+    "A": {
+      "runs": [
+        {
+          "excluded_targets": 1,
+          "metrics": {
+            "concept55": {
+              "macro_f1": 0.09145299145299145,
+              "macro_precision": 0.08597402597402595,
+              "macro_recall": 0.11818181818181818
+            },
+            "category13": {
+              "macro_f1": 0.22933732933732934,
+              "macro_precision": 0.23472527472527474,
+              "macro_recall": 0.3237179487179487
+            },
+            "per_category_f1": {
+              "Basic Arithmetic": 0.0,
+              "Prime Numbers": 0.3333333333333333,
+              "Factors and Multiples": 0.0,
+              "Physics": 0.5,
+              "Ratio and Proportion": 0.0,
+              "Finance": 0.42424242424242425,
+              "Statistics and Probability": 0.0,
+              "Polynomials": 0.3333333333333333,
+              "Sequences and Series": 0.0,
+              "Geometry": 0.5333333333333333,
+              "Set Theory": 0.0,
+              "Permutations and Combinations": 0.8571428571428571,
+              "Other": 0.0
+            },
+            "n_targets": 403,
+            "n_positive_concept_labels": 58
+          }
+        },
+        {
+          "excluded_targets": 1,
+          "metrics": {
+            "concept55": {
+              "macro_f1": 0.09791763791763791,
+              "macro_precision": 0.07915584415584415,
+              "macro_recall": 0.16363636363636364
+            },
+            "category13": {
+              "macro_f1": 0.23186813186813188,
+              "macro_precision": 0.18167480667480665,
+              "macro_recall": 0.4230769230769231
+            },
+            "per_category_f1": {
+              "Basic Arithmetic": 0.0,
+              "Prime Numbers": 0.4444444444444444,
+              "Factors and Multiples": 0.0,
+              "Physics": 0.0,
+              "Ratio and Proportion": 0.0,
+              "Finance": 0.45714285714285713,
+              "Statistics and Probability": 0.0,
+              "Polynomials": 0.5,
+              "Sequences and Series": 0.0,
+              "Geometry": 0.5333333333333333,
+              "Set Theory": 0.2222222222222222,
+              "Permutations and Combinations": 0.8571428571428571,
+              "Other": 0.0
+            },
+            "n_targets": 403,
+            "n_positive_concept_labels": 58
+          }
+        },
+        {
+          "excluded_targets": 1,
+          "metrics": {
+            "concept55": {
+              "macro_f1": 0.09266511266511265,
+              "macro_precision": 0.07597402597402596,
+              "macro_recall": 0.14545454545454545
+            },
+            "category13": {
+              "macro_f1": 0.21135531135531135,
+              "macro_precision": 0.1757224257224257,
+              "macro_recall": 0.3076923076923077
+            },
+            "per_category_f1": {
+              "Basic Arithmetic": 0.0,
+              "Prime Numbers": 0.4,
+              "Factors and Multiples": 0.0,
+              "Physics": 0.0,
+              "Ratio and Proportion": 0.0,
+              "Finance": 0.45714285714285713,
+              "Statistics and Probability": 0.0,
+              "Polynomials": 0.5,
+              "Sequences and Series": 0.0,
+              "Geometry": 0.5333333333333333,
+              "Set Theory": 0.0,
+              "Permutations and Combinations": 0.8571428571428571,
+              "Other": 0.0
+            },
+            "n_targets": 403,
+            "n_positive_concept_labels": 58
+          }
+        },
+        {
+          "excluded_targets": 1,
+          "metrics": {
+            "concept55": {
+              "macro_f1": 0.12735486735486734,
+              "macro_precision": 0.10036796536796536,
+              "macro_recall": 0.21818181818181817
+            },
+            "category13": {
+              "macro_f1": 0.31978021978021975,
+              "macro_precision": 0.25090557590557594,
+              "macro_recall": 0.5512820512820512
+            },
+            "per_category_f1": {
+              "Basic Arithmetic": 0.0,
+              "Prime Numbers": 0.4444444444444444,
+              "Factors and Multiples": 0.0,
+              "Physics": 0.5714285714285714,
+              "Ratio and Proportion": 0.0,
+              "Finance": 0.45714285714285713,
+              "Statistics and Probability": 0.0,
+              "Polynomials": 0.5,
+              "Sequences and Series": 0.5714285714285714,
+              "Geometry": 0.5333333333333333,
+              "Set Theory": 0.2222222222222222,
+              "Permutations and Combinations": 0.8571428571428571,
+              "Other": 0.0
+            },
+            "n_targets": 403,
+            "n_positive_concept_labels": 58
+          }
+        },
+        {
+          "excluded_targets": 1,
+          "metrics": {
+            "concept55": {
+              "macro_f1": 0.0967055167055167,
+              "macro_precision": 0.07824675324675323,
+              "macro_recall": 0.16363636363636364
+            },
+            "category13": {
+              "macro_f1": 0.22142032142032145,
+              "macro_precision": 0.17735569028672477,
+              "macro_recall": 0.38461538461538464
+            },
+            "per_category_f1": {
+              "Basic Arithmetic": 0.0,
+              "Prime Numbers": 0.3333333333333333,
+              "Factors and Multiples": 0.0,
+              "Physics": 0.0,
+              "Ratio and Proportion": 0.0,
+              "Finance": 0.43243243243243246,
+              "Statistics and Probability": 0.0,
+              "Polynomials": 0.5,
+              "Sequences and Series": 0.0,
+              "Geometry": 0.5333333333333333,
+              "Set Theory": 0.2222222222222222,
+              "Permutations and Combinations": 0.8571428571428571,
+              "Other": 0.0
+            },
+            "n_targets": 403,
+            "n_positive_concept_labels": 58
+          }
+        }
+      ],
+      "mean_f1_55": 0.10121922521922522,
+      "mean_f1_13": 0.24275226275226278
+    },
+    "B": {
+      "runs": [
+        {
+          "excluded_targets": 1,
+          "metrics": {
+            "concept55": {
+              "macro_f1": 0.09664779664779664,
+              "macro_precision": 0.08900432900432899,
+              "macro_recall": 0.13636363636363635
+            },
+            "category13": {
+              "macro_f1": 0.23643611290670116,
+              "macro_precision": 0.2091715976331361,
+              "macro_recall": 0.33653846153846156
+            },
+            "per_category_f1": {
+              "Basic Arithmetic": 0.0,
+              "Prime Numbers": 0.4,
+              "Factors and Multiples": 0.0,
+              "Physics": 0.0,
+              "Ratio and Proportion": 0.0,
+              "Finance": 0.4117647058823529,
+              "Statistics and Probability": 0.0,
+              "Polynomials": 0.3333333333333333,
+              "Sequences and Series": 0.5,
+              "Geometry": 0.5714285714285714,
+              "Set Theory": 0.0,
+              "Permutations and Combinations": 0.8571428571428571,
+              "Other": 0.0
+            },
+            "n_targets": 403,
+            "n_positive_concept_labels": 58
+          }
+        },
+        {
+          "excluded_targets": 1,
+          "metrics": {
+            "concept55": {
+              "macro_f1": 0.14103452103452102,
+              "macro_precision": 0.13218614718614718,
+              "macro_recall": 0.21363636363636362
+            },
+            "category13": {
+              "macro_f1": 0.3411477411477411,
+              "macro_precision": 0.3548534798534798,
+              "macro_recall": 0.5352564102564102
+            },
+            "per_category_f1": {
+              "Basic Arithmetic": 0.0,
+              "Prime Numbers": 0.4444444444444444,
+              "Factors and Multiples": 0.0,
+              "Physics": 0.4444444444444444,
+              "Ratio and Proportion": 0.0,
+              "Finance": 0.4444444444444444,
+              "Statistics and Probability": 0.2222222222222222,
+              "Polynomials": 0.5,
+              "Sequences and Series": 0.8,
+              "Geometry": 0.5,
+              "Set Theory": 0.2222222222222222,
+              "Permutations and Combinations": 0.8571428571428571,
+              "Other": 0.0
+            },
+            "n_targets": 403,
+            "n_positive_concept_labels": 58
+          }
+        },
+        {
+          "excluded_targets": 1,
+          "metrics": {
+            "concept55": {
+              "macro_f1": 0.11811965811965812,
+              "macro_precision": 0.11233766233766232,
+              "macro_recall": 0.16818181818181818
+            },
+            "category13": {
+              "macro_f1": 0.2851037851037851,
+              "macro_precision": 0.2928571428571428,
+              "macro_recall": 0.3974358974358974
+            },
+            "per_category_f1": {
+              "Basic Arithmetic": 0.0,
+              "Prime Numbers": 0.2857142857142857,
+              "Factors and Multiples": 0.0,
+              "Physics": 0.2857142857142857,
+              "Ratio and Proportion": 0.0,
+              "Finance": 0.4444444444444444,
+              "Statistics and Probability": 0.0,
+              "Polynomials": 0.5,
+              "Sequences and Series": 0.8,
+              "Geometry": 0.5333333333333333,
+              "Set Theory": 0.0,
+              "Permutations and Combinations": 0.8571428571428571,
+              "Other": 0.0
+            },
+            "n_targets": 403,
+            "n_positive_concept_labels": 58
+          }
+        },
+        {
+          "excluded_targets": 1,
+          "metrics": {
+            "concept55": {
+              "macro_f1": 0.09569541569541569,
+              "macro_precision": 0.0783982683982684,
+              "macro_recall": 0.14545454545454545
+            },
+            "category13": {
+              "macro_f1": 0.19981684981684983,
+              "macro_precision": 0.1629019129019129,
+              "macro_recall": 0.3076923076923077
+            },
+            "per_category_f1": {
+              "Basic Arithmetic": 0.0,
+              "Prime Numbers": 0.25,
+              "Factors and Multiples": 0.0,
+              "Physics": 0.0,
+              "Ratio and Proportion": 0.0,
+              "Finance": 0.45714285714285713,
+              "Statistics and Probability": 0.0,
+              "Polynomials": 0.5,
+              "Sequences and Series": 0.0,
+              "Geometry": 0.5333333333333333,
+              "Set Theory": 0.0,
+              "Permutations and Combinations": 0.8571428571428571,
+              "Other": 0.0
+            },
+            "n_targets": 403,
+            "n_positive_concept_labels": 58
+          }
+        },
+        {
+          "excluded_targets": 1,
+          "metrics": {
+            "concept55": {
+              "macro_f1": 0.12735486735486734,
+              "macro_precision": 0.11854978354978353,
+              "macro_recall": 0.2
+            },
+            "category13": {
+              "macro_f1": 0.3068904068904069,
+              "macro_precision": 0.29548755841859287,
+              "macro_recall": 0.48717948717948717
+            },
+            "per_category_f1": {
+              "Basic Arithmetic": 0.0,
+              "Prime Numbers": 0.4444444444444444,
+              "Factors and Multiples": 0.0,
+              "Physics": 0.5,
+              "Ratio and Proportion": 0.0,
+              "Finance": 0.43243243243243246,
+              "Statistics and Probability": 0.0,
+              "Polynomials": 0.5,
+              "Sequences and Series": 0.5,
+              "Geometry": 0.5333333333333333,
+              "Set Theory": 0.2222222222222222,
+              "Permutations and Combinations": 0.8571428571428571,
+              "Other": 0.0
+            },
+            "n_targets": 403,
+            "n_positive_concept_labels": 58
+          }
+        }
+      ],
+      "mean_f1_55": 0.11577045177045178,
+      "mean_f1_13": 0.27387897917309684
+    },
+    "C": {
+      "runs": [
+        {
+          "excluded_targets": 1,
+          "metrics": {
+            "concept55": {
+              "macro_f1": 0.14489258216530945,
+              "macro_precision": 0.1217099567099567,
+              "macro_recall": 0.2445887445887446
+            },
+            "category13": {
+              "macro_f1": 0.3117196695139431,
+              "macro_precision": 0.23903694344870813,
+              "macro_recall": 0.6117216117216118
+            },
+            "per_category_f1": {
+              "Basic Arithmetic": 0.1,
+              "Prime Numbers": 0.4444444444444444,
+              "Factors and Multiples": 0.0,
+              "Physics": 0.34782608695652173,
+              "Ratio and Proportion": 0.3333333333333333,
+              "Finance": 0.3902439024390244,
+              "Statistics and Probability": 0.26666666666666666,
+              "Polynomials": 0.3333333333333333,
+              "Sequences and Series": 0.4,
+              "Geometry": 0.35714285714285715,
+              "Set Theory": 0.2222222222222222,
+              "Permutations and Combinations": 0.8571428571428571,
+              "Other": 0.0
+            },
+            "n_targets": 403,
+            "n_positive_concept_labels": 58
+          }
+        },
+        {
+          "excluded_targets": 1,
+          "metrics": {
+            "concept55": {
+              "macro_f1": 0.13024087024087022,
+              "macro_precision": 0.11536796536796536,
+              "macro_recall": 0.19090909090909092
+            },
+            "category13": {
+              "macro_f1": 0.2895104895104895,
+              "macro_precision": 0.24586894586894587,
+              "macro_recall": 0.42948717948717946
+            },
+            "per_category_f1": {
+              "Basic Arithmetic": 0.0,
+              "Prime Numbers": 0.5,
+              "Factors and Multiples": 0.0,
+              "Physics": 0.36363636363636365,
+              "Ratio and Proportion": 0.0,
+              "Finance": 0.45714285714285713,
+              "Statistics and Probability": 0.2857142857142857,
+              "Polynomials": 0.4,
+              "Sequences and Series": 0.4,
+              "Geometry": 0.5,
+              "Set Theory": 0.0,
+              "Permutations and Combinations": 0.8571428571428571,
+              "Other": 0.0
+            },
+            "n_targets": 403,
+            "n_positive_concept_labels": 58
+          }
+        },
+        {
+          "excluded_targets": 1,
+          "metrics": {
+            "concept55": {
+              "macro_f1": 0.13456987456987457,
+              "macro_precision": 0.12536796536796535,
+              "macro_recall": 0.18181818181818182
+            },
+            "category13": {
+              "macro_f1": 0.3272922272922273,
+              "macro_precision": 0.32506631299734745,
+              "macro_recall": 0.42948717948717946
+            },
+            "per_category_f1": {
+              "Basic Arithmetic": 0.0,
+              "Prime Numbers": 0.2857142857142857,
+              "Factors and Multiples": 0.0,
+              "Physics": 0.4444444444444444,
+              "Ratio and Proportion": 0.0,
+              "Finance": 0.43243243243243246,
+              "Statistics and Probability": 0.36363636363636365,
+              "Polynomials": 0.5,
+              "Sequences and Series": 0.8,
+              "Geometry": 0.5714285714285714,
+              "Set Theory": 0.0,
+              "Permutations and Combinations": 0.8571428571428571,
+              "Other": 0.0
+            },
+            "n_targets": 403,
+            "n_positive_concept_labels": 58
+          }
+        },
+        {
+          "excluded_targets": 1,
+          "metrics": {
+            "concept55": {
+              "macro_f1": 0.13205905205905205,
+              "macro_precision": 0.12142857142857141,
+              "macro_recall": 0.18181818181818182
+            },
+            "category13": {
+              "macro_f1": 0.32740322740322736,
+              "macro_precision": 0.3289124668435013,
+              "macro_recall": 0.42948717948717946
+            },
+            "per_category_f1": {
+              "Basic Arithmetic": 0.0,
+              "Prime Numbers": 0.3333333333333333,
+              "Factors and Multiples": 0.0,
+              "Physics": 0.5,
+              "Ratio and Proportion": 0.0,
+              "Finance": 0.43243243243243246,
+              "Statistics and Probability": 0.3333333333333333,
+              "Polynomials": 0.5,
+              "Sequences and Series": 0.8,
+              "Geometry": 0.5,
+              "Set Theory": 0.0,
+              "Permutations and Combinations": 0.8571428571428571,
+              "Other": 0.0
+            },
+            "n_targets": 403,
+            "n_positive_concept_labels": 58
+          }
+        },
+        {
+          "excluded_targets": 1,
+          "metrics": {
+            "concept55": {
+              "macro_f1": 0.1438050838050838,
+              "macro_precision": 0.13067099567099566,
+              "macro_recall": 0.21818181818181817
+            },
+            "category13": {
+              "macro_f1": 0.34768294768294766,
+              "macro_precision": 0.3476853606163951,
+              "macro_recall": 0.5448717948717948
+            },
+            "per_category_f1": {
+              "Basic Arithmetic": 0.0,
+              "Prime Numbers": 0.4444444444444444,
+              "Factors and Multiples": 0.0,
+              "Physics": 0.5,
+              "Ratio and Proportion": 0.0,
+              "Finance": 0.43243243243243246,
+              "Statistics and Probability": 0.36363636363636365,
+              "Polynomials": 0.4,
+              "Sequences and Series": 0.8,
+              "Geometry": 0.5,
+              "Set Theory": 0.2222222222222222,
+              "Permutations and Combinations": 0.8571428571428571,
+              "Other": 0.0
+            },
+            "n_targets": 403,
+            "n_positive_concept_labels": 58
+          }
+        }
+      ],
+      "mean_f1_55": 0.137113492568038,
+      "mean_f1_13": 0.320721712280567
+    }
+  },
+  "analyzer": {
+    "majority_class": "wrong_operation_or_concept",
+    "majority_accuracy": 0.6206896551724138,
+    "analyzer_accuracy": 0.5057471264367817,
+    "macro_f1": 0.16094395280235987
+  },
+  "prediction_sha256": {
+    "A_seed0.npz": "7d04cf6153e890fc444744dabf8fac7d5485edfae384ee4f1d0b929ea5b3683f",
+    "A_seed1.npz": "3daa22707628c19d41fe2e9b1a74e9251e8f9336a0941257da621132eab2ef8b",
+    "A_seed2.npz": "10080f94cda2c4797d16a1cb4b72c9e117c64246946cbb1fdbbb7bebcc2abae9",
+    "A_seed3.npz": "c7c5ed33bee65937cb8ced7f7d925814066d199ed3068c439a4e68d3f8069a4d",
+    "A_seed4.npz": "abf29068f61fb954b7adb754d30c2954f30db4fecdb94e398ab88e5aa086b1db",
+    "B_seed0.npz": "5fcdee1e47f5daf26fc8f555b55eab2f1f027ecbf338bfeff8e234b1fa86e1c6",
+    "B_seed1.npz": "3c5fe83bd5c54f97cb0caaf868605657b97385f4d899923a2a6f063c88df08d5",
+    "B_seed2.npz": "88a6932b0530c5df433be70a444c8332c0a9b9d2a588aa10497381ab9926610b",
+    "B_seed3.npz": "8d02acf6a1760e691c7762bffeedfc64191a51cd76b87966ff8db4073997ada7",
+    "B_seed4.npz": "10501b0ac5dd90f376a6bbbc99bedf61044f037b339b2ad3c2a89313e741495e",
+    "C_seed0.npz": "6ca358920aa0be9a34bd4ce7c3557211d91e37660d14c7684656bc1c9ec690e2",
+    "C_seed1.npz": "e9b709eb451e74d3630feb9a08d3be57194089a8ace0159a5a50e57007df9e0b",
+    "C_seed2.npz": "ebfda37a1445c5ede301a41d259f5a2f4b4381ceab2b0ee6840137e1ba85405a",
+    "C_seed3.npz": "ae21d0fd8eaec1d7e88a4df1d6d15c2c03c48d6cdfb5c8cbce9094877eaa3607",
+    "C_seed4.npz": "97b4361095b01ecbfb66fb0926ad718b7f8345d05d2282e9cb9bd908256bdb40"
+  },
+  "policy": "Post-review diagnostics on frozen predictions. Main results keep all gold labels; sensitivity excludes entire inconsistent test rows, without refitting or threshold tuning. Masks are never expanded from target missing labels."
+}
