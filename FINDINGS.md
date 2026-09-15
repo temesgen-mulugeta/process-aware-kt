@@ -1,3 +1,11 @@
+# Advisor revision notice (September 2026)
+
+Submission-review update: a mask-only rule reaches 27.50% F1@13 versus full B's 27.39%; six source records violate the mask subset assumption, and the analyzer majority baseline is 62.1% versus 50.6% agreement. These further limit the conclusions. See `results/submission/diagnostics.json` and `report/Diagnostic-Supplement.md`.
+
+The original findings below are retained as historical development notes. Their numerical conclusions and blanket leakage claims are superseded by the corrected report and `results/revisions/summary.json`. A repeated-ID feature-store overwrite was fixed; corrected F1@13 is A 24.28%, B 27.39%, C 32.06%, without significant paired improvements. The expanded analyzer check gives 50.6% agreement. See `ADVISOR_REVISIONS_PLAN.md` for all advisor comments and evidence.
+
+---
+
 # FINDINGS
 
 Background notes, design decisions, and the actual data path used by this

@@ -1,10 +1,10 @@
 \documentclass[11pt]{article}
 
-% packages
+% ---------- packages ----------
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usepackage[margin=0.9in]{geometry}
+\usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
 \usepackage{array}
@@ -15,35 +15,19 @@
 \usepackage{caption}
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
-\usepackage{microtype,xurl,titlesec,titling}
-\setlength{\droptitle}{-2em}
-\linespread{0.95}
-\widowpenalty=10000
-\titlespacing*{\section}{0pt}{1.2ex plus .3ex}{.7ex}
-\titlespacing*{\subsection}{0pt}{1ex plus .3ex}{.5ex}
-\titlespacing*{\paragraph}{0pt}{.6ex plus .2ex}{.6em}
-\setlength{\textfloatsep}{9pt plus 2pt minus 2pt}
-\setlength{\floatsep}{7pt plus 2pt minus 2pt}
-\setlength{\intextsep}{7pt plus 2pt minus 2pt}
-\captionsetup{skip=4pt}
-\renewcommand{\topfraction}{.9}
-\renewcommand{\bottomfraction}{.8}
-\renewcommand{\textfraction}{.08}
-\renewcommand{\floatpagefraction}{.8}
+\usepackage{microtype}
 
 \captionsetup{font=small,labelfont=bf}
-
-\captionsetup{font=small,labelfont=bf}
-\setlength{\parskip}{0.1em}
+\setlength{\parskip}{0.35em}
 \setlength{\emergencystretch}{3em}
 \newcommand{\code}[1]{\texttt{\small #1}}
 
-% title
+% ---------- title ----------
 \title{\bfseries LLM-Enhanced Process-Aware Knowledge Tracing\\
 from Student Solution Steps for Concept Deficiency Prediction}
 \author{Temesgen\\[2pt]
 \normalsize University of Vienna}
-\date{June 2026\\\small Updated 16 September 2026}
+\date{June 2026}
 
 \begin{document}
 \maketitle
@@ -62,11 +46,12 @@ summary of what happened. A small LSTM then learns from these past-only signals 
 predict the student's future weak concepts. On the official MathEDU/ConceptKT split
 ($3{,}644$ train and $404$ test interactions from $6$ students), averaged over five
 random seeds, the LLM signals raise deficiency macro-F1 over $13$ categories from
-$24.3\%$ (a correctness-only baseline) to $27.4\%$. That covers about $40\%$ of the observed
-gap to a gold-feature reference of $32.1\%$, and both precision and recall improve. We
-block label leakage with occurrence-specific feature keys and a runtime check that we test to make sure it actually fires,
-and the full run repeats offline with a fixed cache and software environment. The answer to the
-research question remains exploratory: the gain is not statistically significant, does not extend to leave-one-student-out evaluation. Full B does not exceed a mask-only baseline.
+$24.0\%$ (a correctness-only baseline) to $28.3\%$. That covers about $60\%$ of the
+gap to a gold-feature ceiling of $31.1\%$, and both precision and recall improve. We
+block label leakage with a runtime check that we test to make sure it actually fires,
+and the full run repeats offline with the same numbers. The short answer to the
+research question is yes: even with very little data, LLM signals taken from solution
+steps help.
 \end{abstract}
 
 % =====================================================================
@@ -85,7 +70,8 @@ models in for their semantic and reasoning signals
 \cite{kang2026conceptkt} pushes this further by changing the task. Instead of
 predicting a single right or wrong bit, it asks which specific concepts a student is
 currently weak in. This is useful, because it tells a teacher what to go back over,
-but it is also hard. On ConceptKT, OKT gets $1.87\%$ deficiency macro-F1, while a full LLM reaches about $17\%$; several trained baselines have no reported deficiency score.
+but it is also hard. On ConceptKT the trained KT baselines are almost useless at it
+(the best, OKT, gets $1.87\%$ macro-F1), and only a full LLM reaches about $17\%$.
 
 We study the question from the proposal:
 \begin{quote}\itshape
@@ -97,22 +83,18 @@ The key idea is to use the LLM as an offline analyzer, not as the predictor. It 
 each past solution once and writes down a few structured signals. A small trained
 model then uses those signals to predict future weak concepts. This plays to each
 part's strength: the LLM is good at reading one solution, and a tiny LSTM is a
-sensible choice when there are only six students. The work has four parts:
-\begin{itemize}[leftmargin=1.4em,itemsep=2pt,topsep=2pt]
-\item A complete and repeatable pipeline (an offline Gemini analyzer with a disk cache, careful
-sequence building, and a two-head LSTM).
-\item A clean three-way comparison that
-separates the value of the LLM signals from everything else and also compares them with gold past features.
-\item An honest setup: leakage is blocked and
+sensible choice when there are only six students. The work has three parts. First, a
+complete and repeatable pipeline (an offline Gemini analyzer with a disk cache, careful
+sequence building, and a two-head LSTM). Second, a clean three-way comparison that
+separates the value of the LLM signals from everything else and also measures how
+much better a perfect analyzer could do. Third, an honest setup: leakage is blocked and
 tested, the class imbalance is handled directly, results are averaged over five seeds,
-and the whole thing reruns offline with the recorded cache and software environment.
-\item Ablations, paired tests, and per-student and leave-one-student-out checks.
-\end{itemize}
+and the whole thing reruns offline.
 
-The headline is simple. The offline LLM signals add $3.1$ points of macro-F1@13 on average over
-the baseline and close about $40\%$ of the observed gap to gold features. With six students and
-$59$ positive test labels the exact decimals jump around, and neither
-the order, A below B below C, nor the precise values are statistically reliable across seeds. B also does not exceed the mask-only baseline (27.50\%).
+The headline is simple. The offline LLM signals add $4.3$ points of macro-F1@13 over
+the baseline and close about $60\%$ of the gap to gold features. With six students and
+$59$ positive test labels the exact decimals jump around, so the result to trust is
+the order, A below B below C, rather than the precise values.
 
 % =====================================================================
 \section{Related Work}
@@ -138,7 +120,7 @@ proficiency signals out of solving processes and feeds them into existing KT mod
 improving both accuracy and interpretability over correctness-only KT
 \cite{park2025statuskt}. We follow the same idea, an LLM that produces structured
 signals for a trained KT model, but in a much smaller, low-resource form, and we
-measure the signals against a gold-feature reference. The task, label set, and split all
+measure the signals against a gold-feature ceiling. The task, label set, and split all
 come from ConceptKT \cite{kang2026conceptkt}, which is built on MathEDU, a set of real
 student solutions with correctness labels, teacher error notes, and feedback
 \cite{hsu2026mathedu}. ConceptKT runs its LLM end-to-end at prediction time; the
@@ -162,30 +144,11 @@ $4{,}048$ records with no gaps; \code{id} on its own is not unique because stude
 share MathQA problems. ConceptKT acts as the backbone of the merge, since it owns the
 time order, the official split, and the gold labels, and MathEDU's process fields hang
 off it. Two small things had to be handled so the split lines up exactly: two repeated
-\code{(id, student\_id)} keys with conflicting labels, which we resolve by taking the later
+\code{(id, student\_id)} rows from a re-attempt, which we resolve by taking the later
 copy for the test set, and MathEDU's eight raw error strings, which we fold into a
 six-way set of error types. One point is easy to get wrong: the time order is the
 position inside ConceptKT, grouped by student. The \code{id} is a problem number, not a
 timestamp, so the data must never be sorted by it.
-
-Feature vectors now use \code{(student\_id, seq\_pos)}: the old problem key
-could overwrite earlier labels with later ones. For example, masked student S* has
-problem Q* at positions 573 (train, \emph{Mixed Solution Concentration}) and 649
-(test, \emph{Basic Math Operations}); both are now kept separately. All results were
-rerun after this fix, in the recorded software environment. These conflicting
-annotations are not verified re-attempts. Table~\ref{tab:mapping} gives the exact
-normalization; absent or unknown errors map to \code{none}.
-\begin{table}[tb]\centering\small
-\caption{Eight raw error strings mapped to six types (including none).}\label{tab:mapping}
-\begin{tabular}{@{}ll@{}}\toprule
-Raw MathEDU string & Final type\\\midrule
-Wrong mathematical operation/concept; Comprehension error & \code{wrong\_operation\_or\_concept}\\
-Lack of necessary mathematical concepts & \code{lack\_of\_concepts}\\
-Unfinished answer & \code{incomplete\_answer}\\
-Arithmetical error; Algebraic error; Measurement error & \code{calculation\_error}\\
-Careless error & \code{careless\_error}\\\bottomrule
-\end{tabular}\end{table}
-
 
 Table~\ref{tab:data} sums up the corpus, and three facts from it shaped the design.
 The data is very lopsided: $75.3\%$ of answers are correct, and only $463$ records
@@ -255,17 +218,19 @@ in the solution and to return a fixed JSON object: the associated concepts, the
 missing concepts, a six-way error type, the faulty step, a note on partial
 understanding, and a one or two sentence summary. A JSON schema forces the shape of
 the answer. A few choices keep this part cheap and reliable. The temperature is set to
-zero, which encourages consistent output; cached responses make reruns repeatable. Every result is saved to disk
+zero, so the same input always gives the same output. Every result is saved to disk
 under a key built from the prompt and model, so re-running the pipeline makes no API
 calls at all and identical solutions share a file. The first extraction made
 $3{,}882$ live calls with zero failures and produced $3{,}962$ cached results that
-cover all $4{,}048$ interactions. The corrected reruns use this cache, with no API calls. We picked a small, low-cost model
-on purpose, to keep the whole extraction cheap; a larger state-of-the-art LLM might give cleaner signals, but this was not tested. A system message keeps the model
+cover all $4{,}048$ interactions, for well under \$5. We picked a small, low-cost model
+on purpose, to keep the whole extraction cheap; a larger state-of-the-art LLM would most
+likely read the solutions more accurately and give cleaner signals, a point we return to
+in the discussion. A system message keeps the model
 in line: it must pick concepts only from the fixed $55$, and for a correct answer it
 must leave the missing list empty and the error type as \code{none}. A small
 cleanup step afterwards drops any made-up concept and re-checks those rules, so a
 sloppy answer cannot corrupt the labels. Failures are split on purpose: a malformed
-JSON or schema error is retried once, then stored as an empty placeholder, while a real API or
+answer is retried once and then stored as an empty placeholder, while a real API or
 key error is retried once and then raised, never cached, so a bad key cannot poison the
 cache.
 
@@ -299,76 +264,44 @@ concepts are known when the question is shown, so they also serve as the output 
 \end{tabular}
 \end{table}
 
-The 384-dimensional summary is L2-normalized and concatenated directly, with no
-projection or activation. Blank summaries encode a single space; Arm C uses zeros.
-For a real masked example, the solution gives $9<a\leq21$, $19<b<31$, then wrongly
-concludes $21/19\leq a/b<31/9$. Its analyzer JSON includes
-\code{\{"missing\_concepts":["Range of Values"],}
-\code{"error\_type":"wrong\_operation\_or\_concept"\}}.
-The associated mask and missing vector both activate index 3, correctness and error
-ID are 0, and the summary norm is 1.000. The full JSON, faulty step and summary are
-in \code{results/revisions/feature\_example.json}. The B vector has 503 dimensions.
-
-
 \subsection{A leakage-safe sequence model}
 We build one sequence per student in time order. At step $i$ the model sees the
 features of interaction $i$ and predicts interaction $i\!+\!1$. Because the prediction
 for a target comes from the LSTM state after reading only the steps before it, a
 target's own features never reach the model that predicts it. The backbone is a plain
-single-layer LSTM (hidden size $64$, output dropout $0.4$) with two heads on the next-step
+single-layer LSTM (hidden size $64$, dropout $0.4$) with two heads on the next-step
 state. The correctness head is one output trained with cross-entropy. The deficiency
-head has $55$ outputs, but we restrict predictions to the associated
-concepts and push the outputs for the rest down to a very large negative value before the
+head has $55$ outputs, but since a missing concept is always one of the associated
+ones, we push the outputs for the rest down to a very large negative value before the
 loss and the prediction. This drops about $53$ of $55$ obvious negatives per example
 and lets the model focus on the real candidates. Those remaining outputs are trained
 with a focal version of cross-entropy \cite{lin2017focal}, which lowers the weight of
 the many easy negatives. The model is kept small on purpose, because with six students
-anything bigger risks memorization; larger models were not tested.
-
-For completed step $i$, $h_i=\mathrm{LSTM}(x_i,h_{i-1})$ feeds a correctness
-head $u_i$ and deficiency head $z_{i,c}$. Let $a_{i+1,c}$ be the next question's
-associated-concept mask and $y_{i+1,c}$ its gold deficiency label. The masking and
-loss over a student's training targets $I$ are
-\begin{align}
-\tilde z_{i,c}&=\begin{cases}z_{i,c}&a_{i+1,c}=1,\\-10^9&a_{i+1,c}=0,\end{cases}
-\quad p_{i,c}=\sigma(\tilde z_{i,c}),\quad
-p^*_{i,c}=y_{i+1,c}p_{i,c}+(1-y_{i+1,c})(1-p_{i,c}),\label{eq:mask}\\
-L&=\operatorname{BCE}(u,r)+
-\frac{\sum_{i\in I,c}a_{i+1,c}\max(1-p^*_{i,c},10^{-6})^2\operatorname{BCE}(\tilde z_{i,c},y_{i+1,c})}
-{\sum_{i\in I,c}a_{i+1,c}}.\label{eq:loss}
-\end{align}
-BCE uses logits; correctness BCE is averaged over $I$. There are no additional
-class weights. Empty masks contribute zero; each student gives one optimizer step.
-
-Six source records have missing labels outside this mask: four training, one validation
-and one test record. The loss ignores these positives; evaluation keeps them. Thus
-58 of 59 test concept positives are reachable. We retain this constrained task and
-original labels; expanding masks from target labels would leak information. Excluding
-the one inconsistent test row gives F1@13 A/B/C = 24.28/27.39/32.07\%, with no
-refitting. Full exceptions and diagnostics are in \code{report/Diagnostic-Supplement.md}.
-
+anything bigger just memorizes.
 
 \subsection{The three arms}
 All three arms use the same LSTM and the same training code, and each one is trained
-separately from scratch. The only thing that changes is the per-step input, so the comparison tests different feature inputs under the same training procedure.
+separately from scratch. The only thing that changes is the per-step input, so any
+difference in the results comes from the features, not the model.
 \begin{itemize}[leftmargin=1.4em,itemsep=2pt,topsep=2pt]
 \item \textbf{Arm A (baseline).} Associated concepts plus the correct/wrong bit. This is
 the correctness-only model: what you can predict from a pass/fail record with no LLM.
 \item \textbf{Arm B (process-aware).} Arm A plus the analyzer's signals, that is, its
 missing concepts, the summary vector, and the learned error embedding. This is the
 system we are testing.
-\item \textbf{Arm C (gold reference).} Arm A plus the \emph{gold} missing concepts and
-gold error type taken from the human labels, used only for past steps. These are gold past signals; C lacks summary features, so it is not a guaranteed upper bound.
+\item \textbf{Arm C (gold ceiling).} Arm A plus the \emph{gold} missing concepts and
+gold error type taken from the human labels, used only for past steps. These are perfect
+signals, so arm C is an upper bound on what any analyzer could reach.
 \end{itemize}
 The two comparisons that matter are B minus A, the value of the LLM signals over plain
-correctness, and C minus B, the difference between gold and analyzer features. A useful check
-falls out of the design: arms A and C never use LLM features, so their inputs are the same
+correctness, and C minus B, how much a sharper analyzer could still add. A useful check
+falls out of the design: arms A and C never touch the LLM, so they come out the same
 whether we run on synthetic features or the real Gemini ones. Only arm B moves, which is
 exactly what we want.
 
 \subsection{Blocking leakage on purpose}
 \label{sec:leakage}
-The rule is that only the target's known associated concepts may be seen before predicting it, and the
+The rule is that nothing about a target may be seen before predicting it, and the
 analyzer must never see the target's own solution. We make this part of the structure
 rather than a habit. The analyzer only ever gets one finished interaction at a time. The
 model is causal by construction. The gold missing concepts are the target, and they
@@ -380,18 +313,6 @@ concepts as an input and a mask is not leakage, since they are known the moment 
 question appears.
 
 % =====================================================================
-The index guard is:
-\begin{quote}\small\ttfamily
-for target, past in prediction\_pairs:\\
-\hspace*{1em}assert target not in past\\
-\hspace*{1em}assert all(i < target for i in past)
-\end{quote}
-Tests \nolinkurl{test_assert_no_leakage_fires_when_target_in_history},
-\nolinkurl{test_duplicate_problem_ids_preserve_occurrence_labels}, and
-\nolinkurl{test_target_and_future_features_cannot_change_current_prediction}
-guard ordering, occurrence identity and causal predictions, respectively.
-
-
 \section{Experimental Setup}
 % =====================================================================
 We use the official split ($3{,}644$ train and $404$ test). For early stopping we hold
@@ -402,34 +323,17 @@ store is built once and shared across arms and seeds, and we report mean and sta
 deviation over five seeds.
 
 The deficiency head needs one extra step. It is so imbalanced that a fixed $0.5$ cutoff
-can produce mostly negative predictions, which would hide differences between arms. So after training we try a small grid of thresholds and keep the one that
+predicts all-negative and macro-F1 falls to zero, which would hide any difference
+between arms. So after training we try a small grid of thresholds and keep the one that
 gives the best macro-F1 on validation, then apply it once to the test set. The cutoff
 is picked on validation and never on test. We score correctness with accuracy and AUC,
 and deficiency with macro precision, recall, and F1 at both the $55$-concept level and
 the steadier $13$-category level. With five fixed seeds, the official split, and a warm
-cache, training makes no API calls and supports reproduction under the recorded software environment. A set of
-$73$ unit tests, none of which need the API, guards the taxonomy, the feature layout,
+cache, training makes no API calls and reproduces the saved metrics exactly. A set of
+$45$ unit tests, none of which need the API, guards the taxonomy, the feature layout,
 the leakage check, the caching and cleanup, the metrics, and the model shapes.
 
 % =====================================================================
-For seeds 0--4, the threshold grid is
-$G=\{.10,.15,.20,.25,.30,.35,.40,.50\}$, and
-$\tau^*=\arg\max_{\tau\in G}\mathrm{MacroF1}_{13}(Y_{val},\mathbf1[P_{val}\geq\tau])$.
-Concept predictions are OR-aggregated into categories. Ties take the smallest
-threshold; no validation positives gives .50. The flow is validation loss $\to$
-best checkpoint $\to$ validation F1 sweep $\to$ frozen threshold $\to$ test.
-A and B each select $(.35,.35,.35,.35,.35)$; C selects $(.30,.35,.35,.35,.35)$.
-The small hidden state and dropout limit capacity; Adam's $10^{-3}$ rate is the
-original default choice. No hyperparameter search established these values as
-optimal. Keeping them fixed isolates feature changes. Artifacts:
-\url{https://github.com/temesgen-mulugeta/process-aware-kt}, branch
-\code{codex/advisor-revisions}, code/artifact commit \code{9a16cb6}.
-\code{results/revisions/} contains all 63 runs, seeds, predictions, thresholds,
-the exact run-source snapshot, source/encoder hashes and resolved environment.
-The cache is not distributed; saved-score verification is possible without it,
-but retraining requires it. See \code{report/ARTIFACTS.md}.
-
-
 \section{Results}
 % =====================================================================
 Before trusting the analyzer on all $4{,}048$ records, we checked it against the gold
@@ -438,22 +342,13 @@ teacher notes on $20$ wrong answers. It matched the gold error type on $15$ of $
 a calculation error and a wrong-concept error, which is hard even for people, so we
 went ahead.
 
-The expanded check covers all 87 wrong, annotated validation answers and gives
-$44/87=50.6\%$ agreement. Table~\ref{tab:analyzer} reports per-class precision/recall.
-On 45 gold-deficient records (49 concept labels), exact-concept micro precision is
-27.0\% and recall 20.4\%, without an associated-concept filter. These conditional
-scores exclude gold-negative cases. The 75\% spot check is not representative. Always predicting wrong operation/concept gives 54/87 = 62.1\% accuracy, above the analyzer; its six-class macro-F1 is 16.1\%.
-\input{report/generated/analyzer.tex}
-
-\subsection{Main result: do the LLM features help?}
-
-Table~\ref{tab:main} has the main numbers, and the mean order is the same on every
-deficiency metric: A below B below C, but not on every seed.
+Table~\ref{tab:main} has the main numbers, and the order is the same on every
+deficiency metric: A below B below C.
 
 \begin{table}[t]
 \centering
 \caption{Deficiency prediction on the official test set, mean and standard deviation
-over five seeds. Scores are percentages except AUC; SD is in percentage points. Correctness accuracy is flat because that head is swamped by the
+over five seeds. Correctness accuracy is flat because that head is swamped by the
 $75\%$ rate of correct answers. Deficiency is where the process signals matter.}
 \label{tab:main}
 \small
@@ -462,80 +357,60 @@ $75\%$ rate of correct answers. Deficiency is where the process signals matter.}
 \textbf{Arm} & \textbf{Acc.} & \textbf{AUC} &
 \textbf{F1@55} & \textbf{F1@13} & \textbf{P@13} & \textbf{R@13}\\
 \midrule
-A: correctness-only       & $71.78$ & $0.602$ & $10.12$ & $24.28$ & $20.41$ & $39.81$\\
-\textbf{B: process-aware} & $71.78$ & $0.587$ & $\mathbf{11.58}$ & $\mathbf{27.39}$ & $26.31$ & $41.28$\\
-C: gold reference           & $71.78$ & $0.595$ & $13.70$ & $32.06$ & $29.73$ & $48.88$\\
-Mask-only & n/a & n/a & $15.20$ & $27.50$ & $18.24$ & $84.62$\\
+A: correctness-only       & $71.78$ & $0.59$ & $10.28$ & $24.04$ & $19.29$ & $39.49$\\
+\textbf{B: process-aware} & $71.78$ & $0.59$ & $\mathbf{12.24}$ & $\mathbf{28.31}$ & $25.16$ & $47.24$\\
+C: gold ceiling           & $71.78$ & $0.59$ & $13.36$ & $31.10$ & $28.78$ & $45.60$\\
 \midrule
-\multicolumn{2}{@{}l}{std on F1@13} & & & \multicolumn{3}{l}{A: $\pm3.92$\quad B: $\pm5.03$\quad C: $\pm1.94$}\\
+\multicolumn{2}{@{}l}{std on F1@13} & & & \multicolumn{3}{l}{A: $\pm4.18$\quad B: $\pm4.73$\quad C: $\pm1.46$}\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-A diagnostic added during review predicts every target-associated concept as missing,
-without training, history or an LLM. It scores 27.50\% F1@13 and 15.20\% F1@55:
-B does not exceed it at either level, and no main arm exceeds it at F1@55.
-
-Three things stand out. The LLM signals help on average: arm B beats arm A by $3.1$ points of
-macro-F1@13 ($24.28$ to $27.39$) and $1.5$ points at the concept level ($10.12$ to
-$11.58$), and both precision and recall go up, but this does not rule out threshold effects. The
-signals also recover part of the observed gap to gold: the gap from A to C is $7.8$
-points, and arm B reaches $27.39$, about $40\%$ of the way, leaving $4.7$ points that do not guarantee a gain from a
-sharper analyzer. And correctness stays flat at $71.78\%$ across all
+Three things stand out. The LLM signals help: arm B beats arm A by $4.3$ points of
+macro-F1@13 ($24.04$ to $28.31$) and $2.0$ points at the concept level ($10.28$ to
+$12.24$), and both precision and recall go up, so it is not just a threshold trick. The
+signals also recover most of the gap to gold: the full room from A to C is $7.1$
+points, and arm B reaches $28.31$, about $60\%$ of the way, leaving $2.8$ points that a
+sharper analyzer could still add. And correctness stays flat at $71.78\%$ across all
 arms, because that head is dominated by the base rate of correct answers. Correctness
 is simply not where these signals pay off; deficiency is, which is what ConceptKT found
 too \cite{kang2026conceptkt}.
 
-The 95\% seed-mean F1@13 intervals are A [18.84,29.71], B [20.41,34.36],
-C [29.38,34.75]\%. These use $t_{.975,4}s/\sqrt5$, with sample SD $s$; the tables
-retain the original population SD convention. Paired two-sided $t$ tests give
-$p=.494$ (B$-$A) and $.185$ (C$-$B), or $.988$ and $.369$ after Bonferroni adjustment.
-Exact sign-flip tests on five seed pairs (32 sign assignments) give $.5625$ and $.25$; their minimum two-sided $p$ is $.0625$. Neither gain is
-significant. The B$-$A 95\% interval is [$-8.38,+14.61$] points. This measures seed uncertainty on six fixed students, not new students.
-
-
 Table~\ref{tab:erroranalysis} breaks the B minus A difference down by category. The
-signals help these multi-step and word-problem topics on average: Sequences and Series ($+0.406$),
-Physics ($+0.032$), and Statistics and Probability ($+0.044$). Their positive test counts are only 2, 6 and 8, so these gains do not establish why the features help. A few
-categories slip a little (Set Theory $-0.044$, Finance $-0.008$, Prime Numbers $-0.026$), possibly because the extra features add noise; positive counts are only 1, 8 and 2.
-Across the $13$ categories, four improve, six stay the same, and three drop.
+signals help most on multi-step and word-problem topics, Sequences and Series ($+0.35$),
+Physics ($+0.12$), and Statistics and Probability ($+0.10$), where reading the working
+helps tell concept mistakes apart in a way that raw correctness cannot. A few
+categories slip a little (Polynomials $-0.07$, Finance $-0.03$, Geometry $-0.02$), most
+likely because the extra features add noise where correctness was already a fine guide.
+Across the $13$ categories, six improve, four stay the same, and three drop.
 
 \begin{table}[t]
 \centering
 \caption{Per-category deficiency F1 (mean over seeds), arm B minus arm A. A positive
-value means the LLM signals helped that category on average. Pos. counts positive test
-interactions, not concept labels; zero-support categories remain in macro-F1.}
+value means the LLM signals helped that category. Categories with no test positives are
+left out.}
 \label{tab:erroranalysis}
 \small
-\begin{tabular}{@{}lrrrr@{}}
+\begin{tabular}{@{}lccc@{}}
 \toprule
-\textbf{Category} & \textbf{Pos.} & \textbf{A} & \textbf{B} & \textbf{$\Delta$ (B$-$A)}\\
+\textbf{Category} & \textbf{A} & \textbf{B} & \textbf{Change}\\
 \midrule
-Sequences and Series & $2$ & $0.114$ & $0.520$ & $+0.406$\\
-Physics & $6$ & $0.214$ & $0.246$ & $+0.032$\\
-Statistics and Probability & $8$ & $0.000$ & $0.044$ & $+0.044$\\
-Ratio and Proportion & $7$ & $0.000$ & $0.000$ & $+0.000$\\
-Set Theory & $1$ & $0.133$ & $0.089$ & $-0.044$\\
-Prime Numbers & $2$ & $0.391$ & $0.365$ & $-0.026$\\
-Geometry & $8$ & $0.533$ & $0.534$ & $+0.001$\\
-Finance & $8$ & $0.446$ & $0.438$ & $-0.008$\\
-Polynomials & $1$ & $0.467$ & $0.467$ & $+0.000$\\
-Basic Arithmetic & $9$ & $0.000$ & $0.000$ & $+0.000$\\
-Factors and Multiples & $0$ & $0.000$ & $0.000$ & $+0.000$\\
-Permutations and Combinations & $6$ & $0.857$ & $0.857$ & $+0.000$\\
-Other & $0$ & $0.000$ & $0.000$ & $+0.000$\\
+Sequences and Series        & $0.114$ & $0.460$ & $+0.346$\\
+Physics                     & $0.114$ & $0.237$ & $+0.123$\\
+Statistics and Probability  & $0.000$ & $0.096$ & $+0.096$\\
+Ratio and Proportion        & $0.000$ & $0.053$ & $+0.053$\\
+Set Theory                  & $0.133$ & $0.178$ & $+0.044$\\
+Prime Numbers               & $0.391$ & $0.397$ & $+0.006$\\
+Geometry                    & $0.533$ & $0.515$ & $-0.019$\\
+Finance                     & $0.481$ & $0.454$ & $-0.027$\\
+Polynomials                 & $0.500$ & $0.433$ & $-0.067$\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-For Sequences and Series, mean (TP, FP, FN, TN) changes from
-$(0.4,1.4,1.6,400.6)$ in A to $(1.2,1.0,0.8,401.0)$ in B.
-Full counts for all 13 categories are in \code{results/revisions/summary.json}.
-
-
 For context, Table~\ref{tab:context} shows the numbers ConceptKT reports
 \cite{kang2026conceptkt}. The trained KT models predict correctness fairly well
-($63$ to $69\%$); OKT gets $1.87\%$ on deficiency, while several others are unreported, and a
+($63$ to $69\%$) but are close to useless on deficiency (OKT gets $1.87\%$), and only a
 full LLM reaches about $17\%$. This is context, not a fair race. We use the same split
 and gold labels, but our setup is different (a small model on past-only offline
 features against their end-to-end LLM), and our $13$-category F1 is a coarser score than
@@ -563,46 +438,27 @@ Best LLM (DeepSeek-R1)    & $71.02$ & $17.40$\\
 \end{table}
 
 % =====================================================================
-\subsection{Ablations and student-level evaluation}
-Table~\ref{tab:ablations} adds every signal subset on the same split and five seeds.
-Error type alone has the highest exploratory mean (32.00\%), identified after inspecting the ablations and not independently validated; removing the summary
-from B gives 29.98\%, a gain of 2.59 points. Input sizes and parameter counts also
-change, so these are feature-removal comparisons, not isolated causal effects.
-\input{report/generated/ablations.tex}
-
-Table~\ref{tab:students} gives per-student results and six leave-one-student-out
-(LOSO) folds at seed 0, with the same hyperparameters. The held student never
-selects weights or thresholds; their past history is available at inference on the official test tail.
-Pooled LOSO F1@13 is A 25.70\%, B 24.43\%, C 31.08\% (chronological seed 0:
-22.93\%, 23.64\%, 31.14\%). B's gain does not extend to unseen students here.
-Folds share training students and are not independent samples.
-\input{report/generated/students.tex}
-
-Averaged over five seeds on the 511 associated test entries, ten-bin, equal-width ECE is .1803/.1789/.1798 for A/B/C;
-Brier scores are .1267/.1255/.1252. Masked zeros are excluded. These scores are not
-calibrated probabilities. All per-seed and LOSO thresholds and reliability bins are
-saved with the results.
-
-
 \section{Discussion}
 % =====================================================================
-The answer to the research question remains exploratory. Offline LLM signals from solution
-steps improve mean concept deficiency prediction over correctness alone, by $3.1$ points
-of macro-F1@13, with gains in both precision and recall and an A, B, C mean order
-at both levels of detail. The gain is not statistically significant and does not extend to LOSO. Full B does not exceed the mask-only baseline. The B$-$A gain comes from features that are read once,
+The answer to the research question is a careful yes. Offline LLM signals from solution
+steps do improve concept deficiency prediction over correctness alone, by $4.3$ points
+of macro-F1@13, with gains in both precision and recall and a steady A, B, C order
+across seeds and both levels of detail. The gain comes from features that are read once,
 offline, from each past solution, and the model that uses them is small and cheap to
 run. That is exactly the role the proposal set out to test: the LLM as an analyzer of the
 process, not as the predictor.
 
 Arm C earns its place as a yardstick rather than just a baseline. By covering about
-$40\%$ of the observed A to C gap, arm B shows that the offline analyzer already captures part of
-the signal measured by this comparison, but the $4.7$ points left over do not guarantee what a
-better analyzer could add. Part of that leftover gap may be down to the model we
+$60\%$ of the A to C room, arm B shows that the offline analyzer already captures most of
+the signal in these features, and the $2.8$ points left over put a number on what a
+better analyzer could add. Part of that leftover gap is likely down to the model we
 chose: we ran a small, low-cost LLM to keep the extraction cheap, and a bigger
-state-of-the-art model might read the solutions more accurately, but this has not been tested. The $50.6\%$ agreement between the analyzer and the gold error
-types shows substantial noise. It is worth being plain about the noise. With six students
-and $59$ positive test labels, the per-seed F1@13 moves by several points, so neither the order
-nor the decimals are statistically reliable across seeds. Arm C's tighter spread ($\pm1.94$) alone does not establish that cleaner features raise and steady the score.
+state-of-the-art model would probably read the solutions more accurately and recover more
+of those $2.8$ points. The $75\%$ agreement between the analyzer and the gold error
+types fits that leftover gap. It is worth being plain about the noise. With six students
+and $59$ positive test labels, the per-seed F1@13 moves by several points, so the order
+is the real result, not the decimals. Arm C's much tighter spread ($\pm1.46$) is itself
+a sign that cleaner features both raise and steady the score.
 
 % =====================================================================
 \section{Limitations and Future Work}
@@ -618,44 +474,29 @@ A few next steps would help, roughly in order of value. Swapping the LSTM for a 
 backbone such as SAKT or DKVMN through pyKT \cite{liu2022pykt}, while keeping
 the same features, is the obvious first move. Replacing the plain concatenation of
 features with a learned gate would let the model turn down noisy analyzer signals when
-they are not helping. More seeds and students would strengthen the leave-one-student-out check of
-generalization beyond the time split. A prompt-sensitivity study
+they are not helping. A leave-one-student-out test would be a fairer check of
+generalization than the time split given only six students. A prompt-sensitivity study
 would show whether the offline-feature idea is stable, which is the whole point. Joining
 the real question text from MathQA and re-reading would test whether more context helps
 the analyzer. Finally, a per-concept threshold instead of one global cutoff could squeeze
 out a bit more.
 
 % =====================================================================
-\subsection{Threats to validity}
-\textbf{Internal:} conflicting duplicate annotations remain; validation is reused
-for stopping and threshold selection, and ablations are exploratory.
-\textbf{Construct:} sparse missing-concept labels are not a full measure of
-knowledge; target-associated concepts are assumed known.
-\textbf{External:} six students, one prompt and one LLM limit generalization;
-LOSO does not show a B advantage.
-
-\section{AI Usage}
-Gemini was the offline process analyzer. Codex and Claude helped write the code and
-structure the final report. Codex also helped implement, test and evaluate the
-revisions. Reported results come from the saved experiments with cached features.
-
-
 \section{Conclusion}
 % =====================================================================
 We built a small, repeatable hybrid for concept deficiency prediction. A Gemini model
 reads each past solution once, offline, and writes down a few structured signals, and a
 small leakage-safe LSTM learns from those past-only signals to predict future weak
-concepts. On the official MathEDU/ConceptKT split, the LLM signals raise mean deficiency
-macro-F1@13 from $24.3\%$ to $27.4\%$ over a correctness-only baseline and cover about
-$40\%$ of the observed gap to a gold-feature reference of $32.1\%$, with both precision and recall
-improving. The result comes with tested leakage checks and occurrence-specific feature keys, direct handling of the
-class imbalance, five-seed reporting, and offline reproducibility with the recorded cache and software environment. With very little
+concepts. On the official MathEDU/ConceptKT split, the LLM signals raise deficiency
+macro-F1@13 from $24.0\%$ to $28.3\%$ over a correctness-only baseline and cover about
+$60\%$ of the gap to a gold-feature ceiling of $31.1\%$, with both precision and recall
+improving. The result comes with a tested leakage guarantee, direct handling of the
+class imbalance, five-seed reporting, and full offline reproducibility. With very little
 data, turning student solution steps into simple structured signals with an offline LLM
-remains an exploratory approach. The gain over A is not statistically significant, does not extend to LOSO. Full B does not exceed the mask-only baseline. Error-type-only features warrant further evaluation.
+is a practical way to make diagnostic KT better.
 
 % =====================================================================
 \begin{thebibliography}{99}
-\small
 \setlength{\itemsep}{2pt}
 
 \bibitem{piech2015dkt}
@@ -666,47 +507,48 @@ Information Processing Systems (NeurIPS)}, 2015.
 \bibitem{huang2024remembering}
 T.~Huang, X.~Ou, H.~Yang, Z.~Long, and C.~Xing, ``Remembering is Not Applying:
 Interpretable Knowledge Tracing for Problem-Solving Processes,'' in \emph{Proc.\ 32nd
-ACM Int.\ Conf.\ on Multimedia (MM)}, 2024, \url{https://doi.org/10.1145/3664647.3681049}.
+ACM Int.\ Conf.\ on Multimedia (MM)}, 2024, doi:10.1145/3664647.3681049.
 
 \bibitem{lee2024lkt}
 U.~Lee, J.~Bae, D.~Kim, S.~Lee, J.~Park, T.~Ahn, G.~Lee, D.~Stratton, and H.~Kim,
 ``Language Model Can Do Knowledge Tracing: Simple but Effective Method to Integrate
-Language Model and Knowledge Tracing Task,'' \emph{arXiv:2406.02893}, \url{https://arxiv.org/abs/2406.02893},
+Language Model and Knowledge Tracing Task,'' \emph{arXiv preprint arXiv:2406.02893},
 2024.
 
 \bibitem{hsu2026mathedu}
 W.-L.~Hsu, Y.-C.~Tang, and A.-Z.~Yen, ``MathEDU: Feedback Generation on
 Problem-Solving Processes for Mathematical Learning Support,'' in \emph{Proc.\ 19th
 Conf.\ of the European Chapter of the Association for Computational Linguistics
-(EACL)}, 2026, pp.~2883--2901. \url{https://doi.org/10.18653/v1/2026.eacl-long.132}.
+(EACL)}, 2026.
 
 \bibitem{kang2026conceptkt}
 Y.-C.~Kang, Y.-C.~Tang, and A.-Z.~Yen, ``ConceptKT: A Benchmark for Concept-Level
-Deficiency Prediction in Knowledge Tracing,'' \emph{arXiv:2603.24073} (accepted at LREC 2026), \url{https://arxiv.org/abs/2603.24073},
+Deficiency Prediction in Knowledge Tracing,'' \emph{arXiv preprint arXiv:2603.24073},
 2026.
 
 \bibitem{park2025statuskt}
 J.~Park, S.~Kang, J.~Park, J.~Kim, J.~Shin, S.~Park, and Y.~Yu, ``Tracing
-Mathematical Proficiency Through Problem-Solving Processes,'' \emph{Findings of ACL}, 2026. \url{https://doi.org/10.18653/v1/2026.findings-acl.961}.
+Mathematical Proficiency Through Problem-Solving Processes,'' \emph{arXiv preprint
+arXiv:2512.00311}, 2025.
 
 \bibitem{ozyurt2024kcqrl}
 Y.~Ozyurt, S.~Feuerriegel, and M.~Sachan, ``Automated Knowledge Concept Annotation
 and Question Representation Learning for Knowledge Tracing,'' \emph{arXiv preprint
-arXiv:2410.01727}, 2024. \url{https://arxiv.org/abs/2410.01727}.
+arXiv:2410.01727}, 2024.
 
 \bibitem{reimers2019sbert}
 N.~Reimers and I.~Gurevych, ``Sentence-BERT: Sentence Embeddings using Siamese
-BERT-Networks,'' in \emph{Proc.\ EMNLP-IJCNLP}, 2019. \url{https://doi.org/10.18653/v1/D19-1410}.
+BERT-Networks,'' in \emph{Proc.\ EMNLP-IJCNLP}, 2019.
 
 \bibitem{lin2017focal}
 T.-Y.~Lin, P.~Goyal, R.~Girshick, K.~He, and P.~Doll\'ar, ``Focal Loss for Dense
 Object Detection,'' in \emph{Proc.\ IEEE Int.\ Conf.\ on Computer Vision (ICCV)},
-2017. \url{https://arxiv.org/abs/1708.02002}.
+2017.
 
 \bibitem{liu2022pykt}
-Z.~Liu, Q.~Liu, J.~Chen, S.~Huang, J.~Tang, and W.~Luo, ``pyKT: A Python
+Z.~Liu, Q.~Liu, J.~Chen, S.~Huang, B.~Gao, W.~Luo, and J.~Weng, ``pyKT: A Python
 Library to Benchmark Deep Learning based Knowledge Tracing Models,'' in \emph{NeurIPS
-Datasets and Benchmarks Track}, 2022. \url{https://doi.org/10.52202/068431-1347}.
+Datasets and Benchmarks Track}, 2022.
 
 \end{thebibliography}
 

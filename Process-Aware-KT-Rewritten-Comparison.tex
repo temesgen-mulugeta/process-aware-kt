@@ -1,0 +1,255 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,array,graphicx,xcolor,tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{caption,enumitem,microtype,longtable,listings}
+\usepackage[hidelinks]{hyperref}
+\captionsetup{font=small,labelfont=bf}
+\setlength{\parskip}{0.3em}
+\setlength{\emergencystretch}{3em}
+\newcommand{\code}[1]{\texttt{\small #1}}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,keepspaces=true,frame=single}
+\title{\bfseries LLM-Enhanced Process-Aware Knowledge Tracing\\from Student Solution Steps for Concept Deficiency Prediction}
+\author{Temesgen\\[2pt]\normalsize University of Vienna}
+\date{September 2026}
+\input{report/comparison/generated/macros.tex}
+\begin{document}
+\maketitle
+\begin{abstract}
+Knowledge tracing usually predicts correctness; concept deficiency prediction instead asks which mathematical concepts a student will fail to apply. We investigate an offline Gemini analyzer that converts past solutions into missing-concept signals, error types and summary embeddings, followed by a small two-head LSTM. We use the official MathEDU/ConceptKT split of 3,644 training and 404 test interactions from six students. A revision audit identified an occurrence-key bug that overwrote labels for repeated problem IDs, including one training record with a later test occurrence's labels. All experiments reported here were rerun after correcting this bug. Across five seeds, macro-F1 over 13 categories is \FoneA\% for the correctness-only baseline, \FoneB\% for full analyzer features and \FoneC\% for gold past features. We report all feature subsets, paired uncertainty, per-category support, calibration, and six leave-one-student-out folds. The expanded analyzer check covers 87 incorrect validation answers and finds 50.6\% error-type agreement, substantially below the original 20-record spot check. Results are exploratory evidence on six fixed students; seed variability and weak analyzer agreement limit conclusions about reliable generalization.
+\end{abstract}
+
+\section{Introduction}
+Knowledge tracing (KT) models students' evolving knowledge from interaction histories. Deep Knowledge Tracing uses a recurrent model to predict future correctness \cite{piech2015dkt}. Correctness alone discards evidence in worked solutions about misconceptions and partial understanding. Process-aware KT \cite{huang2024remembering,park2025statuskt} and text-aware KT \cite{lee2024lkt,ozyurt2024kcqrl} motivate extracting that evidence. ConceptKT \cite{kang2026conceptkt} supplies a more diagnostic target: deficiencies among 55 mathematical concepts grouped into 13 categories.
+
+Our research question is: \emph{Can LLM-derived process signals from past student solutions improve future concept deficiency prediction over a correctness-only baseline?} The LLM describes completed work offline; a small recurrent model predicts the next interaction. The contributions are:
+\begin{itemize}[leftmargin=1.4em,itemsep=2pt]
+\item Offline extraction of structured LLM process signals with cached outputs and an explicit past-only feature boundary.
+\item A compact two-head LSTM that consumes only preceding interactions and masks deficiency outputs to the next question's associated concepts.
+\item A controlled A/B/C comparison with a gold-feature reference and all seven nonempty subsets of the three analyzer signals.
+\item A reproducible evaluation pipeline with occurrence-safe feature keys, causality tests, saved predictions, seed uncertainty, and student-level diagnostics.
+\end{itemize}
+The corrected results replace the earlier draft's numbers. A higher mean is not sufficient evidence of a reliable gain: five optimizer seeds on six students do not represent five independent student populations.
+
+\section{Related Work}
+DKT \cite{piech2015dkt} established recurrent modeling of correctness histories. Process-oriented work distinguishes recalling a concept from applying it in a solution \cite{huang2024remembering}. Language-model KT \cite{lee2024lkt} and concept-aligned question representations \cite{ozyurt2024kcqrl} provide ways to incorporate semantic information. StatusKT extracts mathematical-proficiency representations from solution processes for downstream KT \cite{park2025statuskt}; our work follows this intermediate-feature approach with a deliberately smaller model and a different diagnostic output.
+
+MathEDU \cite{hsu2026mathedu} provides worked solutions and teacher annotations. ConceptKT \cite{kang2026conceptkt} adds concept deficiency labels and evaluates history-based LLM prediction. The internal A/B/C comparison here uses a common split, model family, loss and threshold protocol. Published ConceptKT scores are contextual rather than a head-to-head benchmark: their inference setup differs, and 55-concept F1 cannot be compared directly with our coarser 13-category F1. Reproducible split handling is especially important in KT, as emphasized by pyKT \cite{liu2022pykt}.
+
+\section{Data and Preprocessing}
+ConceptKT provides a chronological spine of 4,048 records from six students; MathEDU supplies the worked solution, final answer, correctness and teacher error annotation. Their composite-key join on \code{(id, student\_id)} covers all 4,048 records. Problem IDs are identifiers, not timestamps: order follows the ConceptKT file within each student. We retain the official 3,644/404 split. The last 10\% (rounded, at least one) of each student's training history forms validation. The first interaction of each student is history only.
+
+The corpus has 3,050 correct and 998 incorrect answers; 463 records have nonempty gold deficiency. Gold targets and associated concepts use the canonical 55-concept taxonomy. Missing labels are converted to empty lists and only canonical concepts are retained. MathEDU contains no question text in this run, so the analyzer reads the solution, answer and known correctness. Its prompt does not contain teacher errors or gold missing concepts.
+
+\subsection{Duplicate occurrences and the corrected feature store}
+The MathEDU lookup joins process fields by composite key. ConceptKT contains two repeated composite keys with different concept annotations. They cannot safely be assumed to be identical records or verified re-attempts. For each key occurring $k$ times in the official test file, the final $k$ occurrences in the spine are marked test; both occurrences remain in the dataset. The feature store now uses \code{(student\_id, seq\_pos)} so labels, masks and history features retain occurrence identity.
+
+For a concrete masked example, student S* has problem Q* at zero-based positions 573 (train) and 649 (test). The earlier occurrence is annotated with \emph{Mixed Solution Concentration}; the later one with \emph{Basic Math Operations}. Previously the shared feature-store key replaced the earlier occurrence with the later vector. The corrected store preserves both. Another repeated key occurs at positions 673 and 677 within a different student's test tail: its labels are \emph{Arithmetic Mean} and \emph{Compound Interest}. Correcting these restores a category positive from Finance to Statistics and Probability. The total remains 59 positive concept labels. Because the process join is still keyed by problem/student, these source annotation disagreements remain a data-quality limitation; we do not invent distinct solutions for them.
+
+\subsection{Error normalization}
+We use the first teacher-review error annotation. Table~\ref{tab:mapping} gives every raw-to-final mapping; absent errors map to \code{none}. Unknown strings also map to \code{none} in the current loader, so taxonomy changes need an explicit audit. Comprehension-to-concept and measurement-to-calculation are interpretive decisions, not universally interchangeable labels.
+\begin{table}[htbp]\centering\small
+\caption{Exact eight-string normalization; the sixth final type, none, covers absent errors.}\label{tab:mapping}
+\begin{tabular}{@{}p{.49\linewidth}p{.45\linewidth}@{}}\toprule
+Raw MathEDU string & Final type\\\midrule
+Wrong mathematical operation/concept & wrong\_operation\_or\_concept\\
+Comprehension error & wrong\_operation\_or\_concept\\
+Lack of necessary mathematical concepts & lack\_of\_concepts\\
+Unfinished answer & incomplete\_answer\\
+Arithmetical error & calculation\_error\\
+Algebraic error & calculation\_error\\
+Careless error & careless\_error\\
+Measurement error & calculation\_error\\\bottomrule
+\end{tabular}\end{table}
+
+\section{Method}
+Figure~\ref{fig:pipeline} summarizes the offline extraction boundary and the two prediction heads. No analyzer API call occurs during the revision experiments: an incomplete cache raises an error before feature construction.
+\begin{figure}[htbp]\centering
+\begin{tikzpicture}[node distance=5mm and 7mm,box/.style={draw,rounded corners,align=center,font=\small,inner sep=5pt},arr/.style={-{Latex},thick}]
+\node[box] (past) {Completed solution\\$i$};
+\node[box,right=of past] (llm) {Offline Gemini\\cached JSON};
+\node[box,right=of llm] (vec) {Past features\\$x_i$};
+\node[box,right=of vec] (lstm) {Causal LSTM\\$h_i$, dim 64};
+\node[box,below=of lstm] (def) {55 deficiency logits\\mask by $a_{i+1}$};
+\node[box,above=of lstm] (cor) {Correctness logit\\for $i+1$};
+\draw[arr](past)--(llm);\draw[arr](llm)--(vec);\draw[arr](vec)--(lstm);
+\draw[arr](lstm)--(def);\draw[arr](lstm)--(cor);
+\end{tikzpicture}
+\caption{Two-head sequence model. The next question's associated concepts are known metadata; its answer, solution and deficiencies are not visible to $h_i$.}\label{fig:pipeline}
+\end{figure}
+
+\subsection{Analyzer and feature encoding}
+The cached analyzer model is \code{gemini-3.1-flash-lite}, using temperature zero and a Pydantic JSON schema. Temperature zero does not guarantee identical responses across provider versions; the fixed cache makes downstream comparisons repeatable. The prompt requests associated concepts, missing concepts, one of six error types, a faulty step, partial understanding, and a short process summary. Sanitation removes out-of-taxonomy concepts and forces empty missing concepts and error type \code{none} when the supplied correctness is true. Agreement on correct cases would therefore be tautological; our expanded check uses wrong answers.
+
+The cache key is SHA-256 of prompt version, model name and user prompt. It does not directly hash the system instruction, so changing that instruction requires a prompt-version bump. The archived cache has 3,962 files covering all interactions. The original log records 3,882 extraction API calls; this is a historical run count, not a count of calls made for these revisions. Cache presence is mandatory here; no malformed-output fallback was needed in the rerun.
+
+Table~\ref{tab:features} defines model inputs. The summary encoder is frozen \code{all-MiniLM-L6-v2} \cite{reimers2019sbert}. Its 384-dimensional output is L2-normalized and concatenated directly: there is \emph{no projection layer or projection activation}. Empty text is replaced with a space and encoded, not replaced by a zero vector. Arm C alone uses an explicit zero summary block to preserve the original B/C dense layout.
+\begin{table}[htbp]\centering\small
+\caption{Feature components; the associated-concept mask always comes from gold question metadata.}\label{tab:features}
+\begin{tabular}{@{}lll@{}}\toprule
+Component & Dimension & Source / arm\\\midrule
+Associated concepts + correctness & $55+1$ & Gold metadata and grading, all\\
+Missing concepts (M) & 55 & Analyzer B; gold C\\
+Error type (E) & 8 learned & Analyzer B; gold C\\
+Summary (S) & 384 frozen & Analyzer B; zero block C\\\bottomrule
+\end{tabular}\end{table}
+
+\paragraph{End-to-end example (IDs masked).}
+A real cached solution states $9<a\leq21$, $19<b<31$, then incorrectly concludes $21/19\leq a/b<31/9$. Its analyzer output is shown below (the faulty expression uses equivalent plain mathematical notation for readability).
+\begin{lstlisting}
+{
+ "associated_concepts": ["Range of Values"],
+ "missing_concepts": ["Range of Values"],
+ "error_type": "wrong_operation_or_concept",
+ "faulty_step": "21/19 <= a/b < 31/9",
+ "partial_understanding": ["The student understands that the bounds of a quotient can be determined by the bounds of the numerator and denominator."],
+ "process_summary": "The student incorrectly combined the bounds of two variables to determine the range of their quotient, failing to account for the correct extreme values of the fraction."
+}
+\end{lstlisting}
+In the canonical zero-based taxonomy, \emph{Range of Values} is index 3. Thus this record's associated mask and LLM missing vector both have only entry 3 set, correctness is 0, error ID is 0, and the 384-dimensional summary has norm 1.000. Its B input has $55+1+55+384+8=503$ dimensions. This record's mask is used when it is the target; its features are available only when predicting its successor. The exact cached JSON and solution are saved in \code{results/revisions/feature\_example.json}.
+
+\subsection{Architecture, loss, masking and threshold selection}
+Let $x_i$ encode completed interaction $i$, $h_i=\operatorname{LSTM}(x_i,h_{i-1})$, and $a_{i+1,c}$ indicate whether concept $c$ is associated with the next question. After output dropout ($0.4$), linear heads produce correctness logit $u_i$ and deficiency logits $z_{i,c}$. The single-layer hidden size is 64. Masking is explicit:
+\begin{equation}
+\tilde z_{i,c}=\begin{cases}z_{i,c},&a_{i+1,c}=1,\\-10^9,&a_{i+1,c}=0,\end{cases}
+\qquad p_{i,c}=\sigma(\tilde z_{i,c}).
+\end{equation}
+For gold deficiency $y_{i+1,c}$, define $p^{\star}_{i,c}=y_{i+1,c}p_{i,c}+(1-y_{i+1,c})(1-p_{i,c})$. Over a student's selected training target positions $I$, the implemented focal binary cross-entropy is
+\begin{align}
+\ell_{i,c}&=-y_{i+1,c}\log p_{i,c}-(1-y_{i+1,c})\log(1-p_{i,c}),\\
+L_D&=\frac{\sum_{i\in I,c}a_{i+1,c}\,[\max(1-p^{\star}_{i,c},10^{-6})]^2\ell_{i,c}}
+{\sum_{i\in I,c}a_{i+1,c}},\\
+L&=\frac{1}{|I|}\sum_{i\in I}\operatorname{BCEWithLogits}(u_i,r_{i+1})+L_D.
+\end{align}
+BCE is evaluated numerically with logits. Only associated entries contribute; an empty mask contributes zero. This is the focal modulation of Lin et al.\ \cite{lin2017focal}, with $\gamma=2$, \emph{no additional alpha/class weights}, and equal weights for correctness and deficiency losses. Each student sequence produces one optimizer step, so students are not implicitly weighted by their number of concepts through a pooled loss.
+
+After choosing the checkpoint with lowest mean student validation loss, we select a single threshold per arm/seed:
+\begin{equation}
+\tau^{\star}=\underset{\tau\in\{.10,.15,.20,.25,.30,.35,.40,.50\}}{\arg\max}
+\operatorname{MacroF1}_{13}(Y_{val},\mathbb{1}[P_{val}\geq\tau]).
+\end{equation}
+Concept indicators are OR-aggregated into categories before category F1. Ties select the lowest grid threshold; a validation set with no positive labels falls back to $.50$. Test labels never select a threshold. Figure~\ref{fig:threshold} shows the flow.
+\begin{figure}[htbp]\centering
+\begin{tikzpicture}[node distance=8mm,box/.style={draw,align=center,font=\small,inner sep=5pt},arr/.style={-{Latex},thick}]
+\node[box](v){Validation loss\\choose checkpoint};
+\node[box,right=of v](t){Validation F1@13\\sweep 8 thresholds};
+\node[box,right=of t](f){Freeze threshold\\evaluate test};
+\draw[arr](v)--(t);\draw[arr](t)--(f);
+\end{tikzpicture}
+\caption{Checkpoint and threshold selection use validation only.}\label{fig:threshold}
+\end{figure}
+
+\subsection{Causality checks}
+When predicting target position $p+1$, only inputs $0,\ldots,p$ may affect its hidden state. The runtime check in \code{src/dataset.py} is equivalent to:
+\begin{lstlisting}
+for p, target in enumerate(target_positions):
+    visible = input_positions[:p + 1]
+    assert target not in visible
+    assert all(v < target for v in visible)
+\end{lstlisting}
+The following tests guard index alignment, occurrence identity, and actual model causality, respectively:
+\begin{lstlisting}
+test_assert_no_leakage_fires_when_target_in_history
+test_duplicate_problem_ids_preserve_occurrence_labels
+test_target_and_future_features_cannot_change_current_prediction
+\end{lstlisting}
+ The old index check alone did not detect overwritten features; the added tests close that gap. Later test interactions may use earlier completed test answers as history, an online rolling-history protocol with fixed model weights.
+
+\section{Experimental Setup}
+\paragraph{Arms and ablations.}
+A uses associated concepts and correctness. B adds analyzer M, E and S; C adds gold past missing concepts and gold past error types. We run M, E, S, ME, MS and ES separately in addition to full MES (B). Absent components are physically removed in ablations; this changes parameter counts, which we report. C retains its zero summary block from the original architecture. Consequently C is a gold-feature reference, not a guaranteed mathematical ceiling: it lacks summary information and need not outperform B in every run.
+
+\paragraph{Fixed hyperparameters and rationale.}
+We retain hidden size 64, output dropout 0.4, Adam learning rate $10^{-3}$, maximum 60 epochs and early-stop patience 8. A compact state and appreciable regularization limit capacity given six students; $10^{-3}$ is the original conventional Adam starting value. These are pragmatic prototype choices, not validated optima. No archived hyperparameter search supports a claim of optimality, and no retrospective search was conducted for this revision. Keeping them fixed isolates feature changes and avoids selecting configurations from the exposed test results. A larger backbone is not proven to overfit merely because the sample is small.
+
+\paragraph{Uncertainty and metrics.}
+Seeds are $\{0,1,2,3,4\}$, matched across arms. We report population standard deviation across these five observations (matching the original convention) and a 95\% Student-$t$ interval for the seed mean, $\bar f\pm t_{.975,4}s/\sqrt5$, where $s$ is the sample standard deviation. The paired differences B$-$A and C$-$B receive two-sided paired $t$-tests and exact sign-flip tests over all $2^5$ sign assignments, with Bonferroni adjustment for these two comparisons. Seed-pair exchangeability and approximate normality for the $t$ test are assumptions; neither test measures uncertainty over new student populations. The smallest two-sided exact $p$ with five nonzero pairs is $2/32=.0625$.
+
+Macro-F1 includes all 55 concepts or all 13 categories, with zero for undefined category F1. Per-category counts are category-positive \emph{interactions}, whereas 59 is a concept-label count. Error breakdowns are one-vs-rest TP/FP/FN/TN, appropriate for multilabel targets. Calibration uses ten equal-width probability bins on associated concept entries only:
+$\mathrm{ECE}=\sum_b(n_b/N)|\overline p_b-\overline y_b|$; Brier score is $N^{-1}\sum(p-y)^2$. Structural masked zeros are excluded so they do not make calibration appear artificially good.
+
+\paragraph{Per-student and LOSO protocol.}
+For each arm we summarize each student's official test tail under the five-seed chronological model. We also train six LOSO folds at seed 0 with unchanged hyperparameters: five students supply training and validation, and the held student's data never selects weights, epochs or thresholds. The held student's observed history is available for recurrent inference on their official test tail. This measures transfer to an unseen student with observed history, not cold start. We report folds individually and pool their out-of-fold test predictions; a mean over fold macro-F1 is a different estimand.
+
+\section{Results}
+\subsection{Analyzer--gold agreement}
+The expanded study is a census of all 87 wrong, gold-error-annotated answers in the actual validation tails, rather than the first 20 eligible corpus records used previously. Students contribute 15, 4, 18, 16, 21 and 13 examples. Error-type agreement is $44/87=50.6\%$; Table~\ref{tab:analyzer} reports every normalized class. The earlier $15/20=75\%$ spot check did not represent the validation population. In particular, the analyzer fails to recover several minority classes.
+\input{report/comparison/generated/analyzer.tex}
+Among the 45 validation records with nonempty gold deficiency (49 gold concept labels), concept-level micro precision is 27.0\% and recall is 20.4\%. These scores compare exact canonical concepts without filtering analyzer predictions by the gold mask. Conditioning on gold-positive records excludes false alarms on gold-negative cases, so precision is conditional, not a whole-validation diagnostic rate. The appendix reports individual concept support and precision/recall plus the six-way error confusion matrix. The taxonomy mapping and incomplete problem context are plausible sources of disagreement; this study cannot distinguish model mistakes from gold annotation ambiguity.
+
+\subsection{Corrected primary comparison and uncertainty}
+Table~\ref{tab:main} reports the corrected official-split results; Table~\ref{tab:significance} gives paired uncertainty. All values are recomputed from saved predictions after the occurrence-key fix.
+\input{report/comparison/generated/main.tex}
+\input{report/comparison/generated/significance.tex}
+\input{report/comparison/generated/primary_interpretation.tex}
+The original A/B/C numbers are retained under \code{results/historical/}, but cannot substantiate a leakage-safe result because the old feature store overwrote occurrence labels. Differences from the draft also reflect the recorded current Python/PyTorch environment, so a numerical change cannot be attributed exclusively to the bug fix.
+
+\subsection{Which analyzer signals matter?}
+Table~\ref{tab:ablations} reports every nonempty signal subset and its macro-F1@13 change from A on the same split and seeds. Comparing full B with ME directly quantifies removal of the summary. These are controlled feature-removal experiments under one architecture, not estimates of a signal's intrinsic causal value: input dimensionality, learned capacity and optimization also change.
+\input{report/comparison/generated/ablations.tex}
+\input{report/comparison/generated/ablation_interpretation.tex}
+
+\subsection{Category support and error breakdowns}
+Table~\ref{tab:categories} includes all 13 categories and their positive test interaction counts; zero-support categories remain in the macro average. The appendix gives mean TP/FP/FN/TN across seeds, preserving each seed's own validation-selected threshold. Sparse categories can change substantially when only one or two predictions change. Aggregate category improvements do not establish that the analyzer correctly diagnosed individual test errors.
+\input{report/comparison/generated/categories.tex}
+The largest B$-$A category change is Sequences and Series ($+0.406$ F1), but it has only two positive test interactions. Statistics and Probability rises by $0.044$ with eight positives; Set Theory drops by $0.044$ with one positive, and Prime Numbers drops by $0.026$ with two. These counts argue against a broad topic-level explanation from the category means alone.
+
+\subsection{Per-student transfer and calibration}
+Table~\ref{tab:students} reports chronological per-student mean F1 and seed-0 LOSO F1, with support. Table~\ref{tab:losopooled} compares pooled LOSO predictions to the matching seed-0 chronological models. These limited folds cannot establish population generalization.
+\input{report/comparison/generated/students.tex}
+\input{report/comparison/generated/loso.tex}
+\input{report/comparison/generated/loso_interpretation.tex}
+Table~\ref{tab:calibration} reports associated-entry ECE and Brier scores. Scores have not been probability-calibrated; the focal objective and threshold tuning optimize discrimination, not probability accuracy. The appendix lists every selected threshold, and the complete reliability bins are in each run's diagnostic JSON.
+\input{report/comparison/generated/calibration.tex}
+
+\section{Discussion and Threats to Validity}
+\input{report/comparison/generated/discussion.tex}
+\subsection{Threats to validity}
+\paragraph{Internal validity.}
+The overwritten-duplicate bug shows why index checks alone were insufficient. Occurrence keys, perturbation tests, fixed splits and cache-only experiments improve control, but conflicting source annotations remain. All arms share a procedure, not equal parameter counts. Validation is reused for stopping and threshold selection, and ablations are exploratory; no best ablation is promoted as a test-selected final model. Hardware/library changes can alter optimization despite fixed seeds.
+\paragraph{Construct validity.}
+Gold missing concepts are sparse annotations of observed work, not a complete measure of knowledge. The eight-to-six mapping merges distinct error types. No question text is available, and known correctness constrains analyzer output. Gold associated concepts at target time are an oracle metadata assumption that real deployments must satisfy. Category OR aggregation can hide fine-grained errors; zero-support categories depress macro-F1. C has access to gold past features but no summary, so it is not a guaranteed upper bound.
+\paragraph{External validity.}
+Only six students and 59 positive test concept labels constrain generalization. Seed confidence intervals cover optimizer variability on this fixed corpus, not student sampling. LOSO uses one seed per fold and observed student history. One prompt, one cached LLM and one summary encoder do not establish robustness to analyzer changes, schools, languages or tasks. No live classroom outcome is measured.
+
+\paragraph{Future work.}
+Priorities are resolving duplicate source annotation conflicts, collecting more students and diagnostic labels, auditing error normalization with educators, and testing prompt/model sensitivity with complete question text. A validation-only hyperparameter study, alternative KT backbones, and calibrated probabilities are subsequent steps. Feature fusion should be compared under matched parameter budgets before attributing changes entirely to particular signals.
+
+\section{AI Usage}
+Gemini (\code{gemini-3.1-flash-lite}) was used as the offline process analyzer. It received completed student solutions, final answers, known correctness and the allowed concept list, and produced the structured features evaluated in this report. Cached outputs were reused for the revision experiments with zero live analyzer calls. Codex and Claude helped write the code and structure the final report, as disclosed by the author. Codex also assisted with the revision audit, implementation, experiment execution, tests and report updates. These development tools were distinct from the Gemini feature-generation step. Reported numerical results were calculated by the recorded evaluation scripts from real cached features and gold labels, not supplied as invented AI estimates. This disclosure does not claim that all AI-assisted prose or code has received independent expert review.
+
+\section{Reproducibility and Artifact Checklist}
+The repository is \url{https://github.com/temesgen-mulugeta/process-aware-kt}, branch \code{codex/advisor-revisions}. The baseline commit is \code{39341ba}; the revision run's full base commit and source/data/cache SHA-256 fingerprints are recorded in \code{results/revisions/provenance.json}. The source manifest captures uncommitted experiment-code changes relative to that base; the commit hash alone is not a claim that the baseline contains these revisions.
+\begin{itemize}[leftmargin=1.4em,itemsep=2pt]
+\item Code and tests: \code{src/}, \code{tests/}; correction and comment checklist in \code{ADVISOR\_REVISIONS\_PLAN.md}.
+\item Seeds: 0--4 for A/B/C and six ablations; seed 0 for each of six LOSO folds per main arm (63 fits total).
+\item Inputs: unmodified public MathEDU and ConceptKT repositories; ignored processed table and original private local analyzer cache. The cache is locally available but is not shipped in the Git repository; full numerical reproduction requires it.
+\item Results: per-run JSON, compressed target/probability arrays, thresholds, epochs, calibration bins and aggregate statistics in \code{results/revisions/}; historical draft results preserved separately.
+\item Environment: Python, NumPy, PyTorch, thread count and hyperparameters in provenance; resolved package versions in \code{results/revisions/environment.txt}. CPU execution uses one thread and deterministic PyTorch algorithms. Exact reproduction across environments is not promised.
+\item Verification: \code{.venv/bin/python -m pytest}; no live API in tests. The corrected sequence and future-feature tests cover all nine input variants.
+\end{itemize}
+\begin{lstlisting}
+GEMINI_MODEL=gemini-3.1-flash-lite HF_HUB_OFFLINE=1 \
+  .venv/bin/python -m src.revisions
+.venv/bin/python scripts/render_revision_report.py
+pdflatex -output-directory=output/pdf Process-Aware-KT-Final-Report.tex
+\end{lstlisting}
+Completed runs are resumed only with matching provenance; changed experimental code requires a fresh output directory. PDF compilation is repeated to resolve references. All generated report tables derive from the saved machine-readable runs.
+
+\section{Conclusion}
+\input{report/comparison/generated/conclusion.tex}
+
+\appendix
+\section{Thresholds and training diagnostics}
+Tables~\ref{tab:thresholds} and~\ref{tab:losothresholds} list the thresholds for chronological runs and held-student folds.
+\input{report/comparison/generated/thresholds.tex}
+\section{Category error counts}
+Table~\ref{tab:confusions} reports the complete category-level error breakdown for all main arms.
+\input{report/comparison/generated/confusions.tex}
+\section{Expanded analyzer diagnostics}
+\input{report/comparison/generated/analyzer_details.tex}
+\clearpage
+\input{report/comparison/references.tex}
+\end{document}

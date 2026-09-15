@@ -1,0 +1,5 @@
+# Unified diffs intentionally prefix empty context lines with a space.
+report/ORIGINAL_REPORT_REVISION.diff -whitespace
+# Preserve the generated table and frozen comparison snapshots byte-for-byte.
+report/generated/analyzer_details.tex whitespace=-blank-at-eof
+report/comparison/generated/analyzer_details.tex whitespace=-blank-at-eof
