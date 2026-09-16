@@ -534,7 +534,7 @@
  
  % =====================================================================
  \section{Limitations and Future Work}
-@@ -474,29 +614,44 @@
+@@ -474,29 +614,43 @@
  backbone such as SAKT or DKVMN through pyKT \cite{liu2022pykt}, while keeping
  the same features, is the obvious first move. Replacing the plain concatenation of
  features with a learned gate would let the model turn down noisy analyzer signals when
@@ -558,8 +558,7 @@
 +
 +\section{AI Usage}
 +Gemini was the offline process analyzer. Codex and Claude helped write the code and
-+structure the final report. Codex also helped implement, test and evaluate the
-+revisions. Reported results come from the saved experiments with cached features.
++structure the final report. Reported results come from the saved experiments with cached features.
 +
 +
  \section{Conclusion}
@@ -587,7 +586,7 @@
  \setlength{\itemsep}{2pt}
  
  \bibitem{piech2015dkt}
-@@ -507,48 +662,47 @@
+@@ -507,48 +661,47 @@
  \bibitem{huang2024remembering}
  T.~Huang, X.~Ou, H.~Yang, Z.~Long, and C.~Xing, ``Remembering is Not Applying:
  Interpretable Knowledge Tracing for Problem-Solving Processes,'' in \emph{Proc.\ 32nd
