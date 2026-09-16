@@ -67,3 +67,7 @@ Completed per-run files are reused only under matching scientific provenance; Gi
 - `scripts/`: regenerate report tables and verify every saved prediction against source labels.
 
 Gemini generated analyzer features. Codex and Claude assisted with code and report structure; the report includes a separate AI-usage disclosure.
+
+## Submission package
+
+`output/Process-Aware-KT-Submission.zip` contains the final 10-page report, current diagnostic supplement and artifact guide, linked diagnostic JSON files, and the immutable source/results archive, with checksums and reading instructions. Attach the package when submitting; it has not been published remotely.

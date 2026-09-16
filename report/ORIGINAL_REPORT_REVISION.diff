@@ -1,5 +1,5 @@
---- original/Process-Aware-KT-Report-Short.tex
-+++ revised/Process-Aware-KT-Final-Report.tex
+--- report/original/Process-Aware-KT-Report-Short.tex
++++ Process-Aware-KT-Final-Report.tex
 @@ -1,10 +1,10 @@
  \documentclass[11pt]{article}
  
@@ -53,7 +53,19 @@
  
  \begin{document}
  \maketitle
-@@ -46,12 +62,11 @@
+@@ -37,21 +53,20 @@
+ Most knowledge tracing (KT) systems only predict whether a student will get the
+ next question right. The recent ConceptKT benchmark asks a harder and more useful
+ question: which of $55$ math concepts will a student be weak in on their next
+-problem? Trained KT models do this very poorly, and only large language models
+-(LLMs), used directly at prediction time, do reasonably well, but they are slow and
+-costly to run. This report tests a middle path. We run a small, low-cost Gemini model once on each
++problem? The reported OKT deficiency score is low; several trained baselines have
++no reported score. Large language models (LLMs), used directly at prediction time,
++do better than OKT, but they are slow and costly to run. This report tests a middle path. We run a small, low-cost Gemini model once on each
+ \emph{past} solution, offline, to pull out a few simple signals: the concepts the
+ student seems to have missed, the type of error, the faulty step, and a short
+ summary of what happened. A small LSTM then learns from these past-only signals to
  predict the student's future weak concepts. On the official MathEDU/ConceptKT split
  ($3{,}644$ train and $404$ test interactions from $6$ students), averaged over five
  random seeds, the LLM signals raise deficiency macro-F1 over $13$ categories from
@@ -67,7 +79,7 @@
 +gap to a gold-feature reference of $32.1\%$, and both precision and recall improve. We
 +block label leakage with occurrence-specific feature keys and a runtime check that we test to make sure it actually fires,
 +and the full run repeats offline with a fixed cache and software environment. The answer to the
-+research question remains exploratory: the gain is not statistically significant, does not extend to leave-one-student-out evaluation. Full B does not exceed a mask-only baseline.
++research question remains exploratory: the gain is not statistically significant and does not extend to leave-one-student-out evaluation. The full LLM feature bundle does not exceed a mask-only baseline.
  \end{abstract}
  
  % =====================================================================
@@ -94,8 +106,8 @@
 +\begin{itemize}[leftmargin=1.4em,itemsep=2pt,topsep=2pt]
 +\item A complete and repeatable pipeline (an offline Gemini analyzer with a disk cache, careful
 +sequence building, and a two-head LSTM).
-+\item A clean three-way comparison that
-+separates the value of the LLM signals from everything else and also compares them with gold past features.
++\item A controlled three-way comparison of feature sets under the same training and
++evaluation procedure, including gold past features as a reference.
 +\item An honest setup: leakage is blocked and
  tested, the class imbalance is handled directly, results are averaged over five seeds,
 -and the whole thing reruns offline.
@@ -269,7 +281,7 @@
  analyzer must never see the target's own solution. We make this part of the structure
  rather than a habit. The analyzer only ever gets one finished interaction at a time. The
  model is causal by construction. The gold missing concepts are the target, and they
-@@ -313,6 +380,18 @@
+@@ -313,6 +380,15 @@
  question appears.
  
  % =====================================================================
@@ -279,16 +291,13 @@
 +\hspace*{1em}assert target not in past\\
 +\hspace*{1em}assert all(i < target for i in past)
 +\end{quote}
-+Tests \nolinkurl{test_assert_no_leakage_fires_when_target_in_history},
-+\nolinkurl{test_duplicate_problem_ids_preserve_occurrence_labels}, and
-+\nolinkurl{test_target_and_future_features_cannot_change_current_prediction}
-+guard ordering, occurrence identity and causal predictions, respectively.
++The tests listed in the supplement guard ordering, occurrence identity and causal predictions.
 +
 +
  \section{Experimental Setup}
  % =====================================================================
  We use the official split ($3{,}644$ train and $404$ test). For early stopping we hold
-@@ -323,17 +402,34 @@
+@@ -323,17 +399,34 @@
  deviation over five seeds.
  
  The deficiency head needs one extra step. It is so imbalanced that a fixed $0.5$ cutoff
@@ -327,7 +336,7 @@
  \section{Results}
  % =====================================================================
  Before trusting the analyzer on all $4{,}048$ records, we checked it against the gold
-@@ -342,13 +438,22 @@
+@@ -342,14 +435,22 @@
  a calculation error and a wrong-concept error, which is hard even for people, so we
  went ahead.
  
@@ -337,7 +346,7 @@
 +$44/87=50.6\%$ agreement. Table~\ref{tab:analyzer} reports per-class precision/recall.
 +On 45 gold-deficient records (49 concept labels), exact-concept micro precision is
 +27.0\% and recall 20.4\%, without an associated-concept filter. These conditional
-+scores exclude gold-negative cases. The 75\% spot check is not representative. Always predicting wrong operation/concept gives 54/87 = 62.1\% accuracy, above the analyzer; its six-class macro-F1 is 16.1\%.
++scores exclude gold-negative cases. The 75\% spot check is not representative. Always predicting wrong operation/concept gives 54/87 = 62.1\% accuracy, above the analyzer. The analyzer's six-class macro-F1 is 16.1\%.
 +\input{report/generated/analyzer.tex}
 +
 +\subsection{Main result: do the LLM features help?}
@@ -349,11 +358,12 @@
  \centering
  \caption{Deficiency prediction on the official test set, mean and standard deviation
 -over five seeds. Correctness accuracy is flat because that head is swamped by the
-+over five seeds. Scores are percentages except AUC; SD is in percentage points. Correctness accuracy is flat because that head is swamped by the
- $75\%$ rate of correct answers. Deficiency is where the process signals matter.}
+-$75\%$ rate of correct answers. Deficiency is where the process signals matter.}
++over five seeds for A, B and C; mask-only is a fixed rule. Scores are percentages except AUC; SD is in percentage points. All main arms predict every test answer as correct at the 0.5 cutoff, giving 71.78\% accuracy. B has higher mean deficiency scores than A but does not exceed mask-only.}
  \label{tab:main}
  \small
-@@ -357,60 +462,80 @@
+ \begin{tabular}{@{}lcccccc@{}}
+@@ -357,60 +458,80 @@
  \textbf{Arm} & \textbf{Acc.} & \textbf{AUC} &
  \textbf{F1@55} & \textbf{F1@13} & \textbf{P@13} & \textbf{R@13}\\
  \midrule
@@ -464,7 +474,7 @@
  full LLM reaches about $17\%$. This is context, not a fair race. We use the same split
  and gold labels, but our setup is different (a small model on past-only offline
  features against their end-to-end LLM), and our $13$-category F1 is a coarser score than
-@@ -438,27 +563,46 @@
+@@ -438,27 +559,46 @@
  \end{table}
  
  % =====================================================================
@@ -524,7 +534,7 @@
  
  % =====================================================================
  \section{Limitations and Future Work}
-@@ -474,29 +618,44 @@
+@@ -474,29 +614,44 @@
  backbone such as SAKT or DKVMN through pyKT \cite{liu2022pykt}, while keeping
  the same features, is the obvious first move. Replacing the plain concatenation of
  features with a learned gate would let the model turn down noisy analyzer signals when
@@ -569,7 +579,7 @@
 +class imbalance, five-seed reporting, and offline reproducibility with the recorded cache and software environment. With very little
  data, turning student solution steps into simple structured signals with an offline LLM
 -is a practical way to make diagnostic KT better.
-+remains an exploratory approach. The gain over A is not statistically significant, does not extend to LOSO. Full B does not exceed the mask-only baseline. Error-type-only features warrant further evaluation.
++remains an exploratory approach. The gain over A is not statistically significant and does not extend to LOSO. Full B does not exceed the mask-only baseline. Error-type-only features warrant further evaluation.
  
  % =====================================================================
  \begin{thebibliography}{99}
@@ -577,7 +587,7 @@
  \setlength{\itemsep}{2pt}
  
  \bibitem{piech2015dkt}
-@@ -507,48 +666,47 @@
+@@ -507,48 +662,47 @@
  \bibitem{huang2024remembering}
  T.~Huang, X.~Ou, H.~Yang, Z.~Long, and C.~Xing, ``Remembering is Not Applying:
  Interpretable Knowledge Tracing for Problem-Solving Processes,'' in \emph{Proc.\ 32nd

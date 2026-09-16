@@ -294,3 +294,11 @@ See [diagnostics.json](../results/submission/diagnostics.json) for mask-only F1/
 ## Reproduction
 
 See [ARTIFACTS.md](ARTIFACTS.md).
+
+## Leakage regression tests
+
+The main report's runtime guard is covered by these tests:
+
+- `test_assert_no_leakage_fires_when_target_in_history` (`tests/test_dataset.py`): rejects a target included in its own history.
+- `test_duplicate_problem_ids_preserve_occurrence_labels` (`tests/test_revisions.py`): preserves labels for each occurrence of a repeated problem.
+- `test_target_and_future_features_cannot_change_current_prediction` (`tests/test_revisions.py`): checks that target and future features cannot affect the current prediction.

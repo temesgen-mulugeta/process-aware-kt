@@ -53,9 +53,9 @@ from Student Solution Steps for Concept Deficiency Prediction}
 Most knowledge tracing (KT) systems only predict whether a student will get the
 next question right. The recent ConceptKT benchmark asks a harder and more useful
 question: which of $55$ math concepts will a student be weak in on their next
-problem? Trained KT models do this very poorly, and only large language models
-(LLMs), used directly at prediction time, do reasonably well, but they are slow and
-costly to run. This report tests a middle path. We run a small, low-cost Gemini model once on each
+problem? The reported OKT deficiency score is low; several trained baselines have
+no reported score. Large language models (LLMs), used directly at prediction time,
+do better than OKT, but they are slow and costly to run. This report tests a middle path. We run a small, low-cost Gemini model once on each
 \emph{past} solution, offline, to pull out a few simple signals: the concepts the
 student seems to have missed, the type of error, the faulty step, and a short
 summary of what happened. A small LSTM then learns from these past-only signals to
@@ -66,7 +66,7 @@ $24.3\%$ (a correctness-only baseline) to $27.4\%$. That covers about $40\%$ of 
 gap to a gold-feature reference of $32.1\%$, and both precision and recall improve. We
 block label leakage with occurrence-specific feature keys and a runtime check that we test to make sure it actually fires,
 and the full run repeats offline with a fixed cache and software environment. The answer to the
-research question remains exploratory: the gain is not statistically significant, does not extend to leave-one-student-out evaluation. Full B does not exceed a mask-only baseline.
+research question remains exploratory: the gain is not statistically significant and does not extend to leave-one-student-out evaluation. The full LLM feature bundle does not exceed a mask-only baseline.
 \end{abstract}
 
 % =====================================================================
@@ -101,8 +101,8 @@ sensible choice when there are only six students. The work has four parts:
 \begin{itemize}[leftmargin=1.4em,itemsep=2pt,topsep=2pt]
 \item A complete and repeatable pipeline (an offline Gemini analyzer with a disk cache, careful
 sequence building, and a two-head LSTM).
-\item A clean three-way comparison that
-separates the value of the LLM signals from everything else and also compares them with gold past features.
+\item A controlled three-way comparison of feature sets under the same training and
+evaluation procedure, including gold past features as a reference.
 \item An honest setup: leakage is blocked and
 tested, the class imbalance is handled directly, results are averaged over five seeds,
 and the whole thing reruns offline with the recorded cache and software environment.
@@ -386,10 +386,7 @@ for target, past in prediction\_pairs:\\
 \hspace*{1em}assert target not in past\\
 \hspace*{1em}assert all(i < target for i in past)
 \end{quote}
-Tests \nolinkurl{test_assert_no_leakage_fires_when_target_in_history},
-\nolinkurl{test_duplicate_problem_ids_preserve_occurrence_labels}, and
-\nolinkurl{test_target_and_future_features_cannot_change_current_prediction}
-guard ordering, occurrence identity and causal predictions, respectively.
+The tests listed in the supplement guard ordering, occurrence identity and causal predictions.
 
 
 \section{Experimental Setup}
@@ -442,7 +439,7 @@ The expanded check covers all 87 wrong, annotated validation answers and gives
 $44/87=50.6\%$ agreement. Table~\ref{tab:analyzer} reports per-class precision/recall.
 On 45 gold-deficient records (49 concept labels), exact-concept micro precision is
 27.0\% and recall 20.4\%, without an associated-concept filter. These conditional
-scores exclude gold-negative cases. The 75\% spot check is not representative. Always predicting wrong operation/concept gives 54/87 = 62.1\% accuracy, above the analyzer; its six-class macro-F1 is 16.1\%.
+scores exclude gold-negative cases. The 75\% spot check is not representative. Always predicting wrong operation/concept gives 54/87 = 62.1\% accuracy, above the analyzer. The analyzer's six-class macro-F1 is 16.1\%.
 \input{report/generated/analyzer.tex}
 
 \subsection{Main result: do the LLM features help?}
@@ -453,8 +450,7 @@ deficiency metric: A below B below C, but not on every seed.
 \begin{table}[t]
 \centering
 \caption{Deficiency prediction on the official test set, mean and standard deviation
-over five seeds. Scores are percentages except AUC; SD is in percentage points. Correctness accuracy is flat because that head is swamped by the
-$75\%$ rate of correct answers. Deficiency is where the process signals matter.}
+over five seeds for A, B and C; mask-only is a fixed rule. Scores are percentages except AUC; SD is in percentage points. All main arms predict every test answer as correct at the 0.5 cutoff, giving 71.78\% accuracy. B has higher mean deficiency scores than A but does not exceed mask-only.}
 \label{tab:main}
 \small
 \begin{tabular}{@{}lcccccc@{}}
@@ -651,7 +647,7 @@ $40\%$ of the observed gap to a gold-feature reference of $32.1\%$, with both pr
 improving. The result comes with tested leakage checks and occurrence-specific feature keys, direct handling of the
 class imbalance, five-seed reporting, and offline reproducibility with the recorded cache and software environment. With very little
 data, turning student solution steps into simple structured signals with an offline LLM
-remains an exploratory approach. The gain over A is not statistically significant, does not extend to LOSO. Full B does not exceed the mask-only baseline. Error-type-only features warrant further evaluation.
+remains an exploratory approach. The gain over A is not statistically significant and does not extend to LOSO. Full B does not exceed the mask-only baseline. Error-type-only features warrant further evaluation.
 
 % =====================================================================
 \begin{thebibliography}{99}
