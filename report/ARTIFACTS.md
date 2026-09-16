@@ -1,10 +1,10 @@
 # Reproducing the submitted results
 
-The submission archive contains corrected code, tests, all 63 saved prediction/label arrays and run summaries, the diagnostic supplement, and post-review controls. It does **not** contain raw worked solutions, the analyzer cache, or encoder weights. No new analyzer extraction or model training was performed for the submission-review fixes.
+The repository contains corrected code, tests, all 63 saved prediction/label arrays and run summaries, the diagnostic supplement, and post-review controls. Raw worked solutions, the analyzer cache and encoder weights are not tracked in Git. No new analyzer extraction or model training was performed for the submission-review fixes.
 
 ## What can be reproduced without the analyzer cache
 
-From the repository/archive root, in an environment with the declared dependencies:
+From the repository root, in an environment with the declared dependencies:
 
 ```sh
 python scripts/verify_revision_artifacts.py
@@ -34,11 +34,3 @@ GEMINI_MODEL=gemini-3.1-flash-lite HF_HUB_OFFLINE=1 KT_RESULTS_DIR=results/new-r
 ```
 
 The current runner ignores only a change in Git HEAD when checking resume compatibility. Any source/data/cache/runtime difference still blocks mixing runs. It preserves the original run commit on resume. The historical snapshot retains its original strict resume behavior.
-
-The release is prepared locally. Sharing the source archive or pushing the referenced commit is a separate publication step; no remote release was published automatically.
-
-## Submission package
-
-`output/Process-Aware-KT-Submission.zip` bundles the final 10-page PDF, the current standalone diagnostic supplement and artifact guide, their linked diagnostic JSON files, and the immutable `Process-Aware-KT-Artifacts-9a16cb6.tar.gz` source/results archive. Submit this package with the paper so recipients have the supporting materials without relying on the repository link. Its `SHA256SUMS` checks each included file.
-
-The archive remains the exact snapshot of commit `9a16cb6`; its bundled documentation predates the final editorial pass. Use the standalone supplement and guide in the submission package for the final documentation. The package is prepared locally and has not been submitted or published remotely.

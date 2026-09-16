@@ -2,23 +2,21 @@
 
 Offline Gemini process features feed a small, causal two-head LSTM for future correctness and concept deficiency prediction on MathEDU/ConceptKT.
 
-## Advisor revisions
+## Results
 
 The corrected five-seed macro-F1@13 results are **A 24.28%, B 27.39%, C 32.06%**. The B−A paired difference is **not statistically significant** (t-test p=0.494; exact sign-flip p=0.5625). Error-type-only features score 32.00% in exploratory ablations. Pooled seed-0 LOSO gives A 25.70%, B 24.43%, C 31.08%. The larger analyzer validation study finds 44/87 (50.6%) error-type agreement.
 
 Review diagnostics add a mask-only rule: **27.50% F1@13 and 15.20% F1@55**, so full B does not exceed this simple control. Six records contain gold missing concepts outside the prediction mask; loss ignores these positives, while evaluation retains them. The analyzer's majority comparator is 62.1%, above its 50.6% agreement. See `results/submission/diagnostics.json` and `report/Diagnostic-Supplement.md`.
 
-The revision fixes a feature-store bug: repeated `(id, student_id)` keys overwrote distinct occurrence labels, including a training occurrence with a later test occurrence's gold labels. Features now use `(student_id, seq_pos)`. All results were rerun; the old results are explicitly historical.
+The revision fixes a feature-store bug: repeated `(id, student_id)` keys overwrote distinct occurrence labels, including a training occurrence with a later test occurrence's gold labels. Features now use `(student_id, seq_pos)`. All reported results were rerun after this fix; superseded results remain in Git history.
 
 - Main report: `Process-Aware-KT-Final-Report.tex` is the single LaTeX source for the 10-page report (including references), with its tables included directly. Earlier report sources remain available in Git history. Detailed diagnostics are in `report/Diagnostic-Supplement.md` and `results/revisions/`.
 - Compiled report: `output/pdf/Process-Aware-KT-Final-Report.pdf`.
-- Plan and completed comment audit: `ADVISOR_REVISIONS_PLAN.md`.
 - Complete results: `results/revisions/summary.json`, 63 run JSON/NPZ pairs, thresholds, support, per-student diagnostics, calibration and analyzer agreement.
-- Historical baseline results: `results/historical/`; older narrative development notes in `FINDINGS.md` are superseded.
 
-## Submission artifacts
+## Submission files
 
-Corrected code and numerical artifacts: commit `9a16cb632029aa691c4b4033d37174c67c7aab35`. A portable source/results archive is at `output/Process-Aware-KT-Artifacts-9a16cb6.tar.gz`. This is a local release, not a remotely published GitHub release. The main report cites this commit; its original experiment-source snapshot is included.
+The final report is `Process-Aware-KT-Final-Report.tex` and `output/pdf/Process-Aware-KT-Final-Report.pdf`. Submit it with `report/Diagnostic-Supplement.md` and the supporting `results/` files. `report/ARTIFACTS.md` explains saved-score verification and retraining requirements. The exact original experiment source is preserved in `results/revisions/source_snapshot/`; code/artifact commit `9a16cb632029aa691c4b4033d37174c67c7aab35` remains in Git history.
 
 ## Inputs and setup
 
@@ -63,10 +61,6 @@ Completed per-run files are reused only under matching scientific provenance; Gi
 - `src/model.py`, `src/train.py`: LSTM, masked focal BCE, validation-only threshold selection.
 - `src/revisions.py`, `src/revision_analysis.py`: resumable experiment matrix, paired statistics and diagnostics.
 - `tests/`: offline regression tests, including feature isolation, repeated labels, actual future-feature invariance, LOSO isolation and statistical calculations.
-- `scripts/`: regenerate report tables and verify every saved prediction against source labels.
+- `scripts/`: verify saved predictions and compute diagnostics. `render_revision_report.py` optionally generates reference tables under `report/generated/`; the final report already contains its tables and does not need these files.
 
 Gemini generated analyzer features. Codex and Claude assisted with code and report structure; the report includes a separate AI-usage disclosure.
-
-## Submission package
-
-`output/Process-Aware-KT-Submission.zip` contains the final 10-page report, current diagnostic supplement and artifact guide, linked diagnostic JSON files, and the immutable source/results archive, with checksums and reading instructions. Attach the package when submitting; it has not been published remotely.
