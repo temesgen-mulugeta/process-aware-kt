@@ -8,7 +8,7 @@ never sees a target question's solution — callers only ever pass past
 interactions, so leakage is structurally impossible here.
 
 Key properties (brief Section 7):
-  * temperature 0 + response_schema  -> reproducible, validated output
+  * temperature 0 + response_schema  -> constrained output; cache enables repeatability
   * disk cache keyed by sha256(prompt + model)  -> re-runs make zero API calls
   * malformed output -> retry once -> null-feature placeholder (logged)
 
@@ -180,7 +180,9 @@ def _raw_gemini_call(prompt: str) -> AnalyzerOutput:
     parsed = getattr(resp, "parsed", None)
     if isinstance(parsed, AnalyzerOutput):
         return parsed
-    return AnalyzerOutput(**json.loads(resp.text))
+    if not isinstance(resp.text, str):
+        raise ValueError("Gemini returned no JSON text")
+    return AnalyzerOutput.model_validate(json.loads(resp.text))
 
 
 def _sanitize(out: AnalyzerOutput, rec: dict) -> AnalyzerOutput:
@@ -220,30 +222,25 @@ def analyze(rec: dict, use_cache: bool = True) -> AnalyzerOutput:
 
     from google.genai import errors as genai_errors
 
-    # --- API call with one extra retry; API errors propagate (not cached) ---
-    raw = None
-    api_err = None
+    # Parsing, schema validation and sanitation belong inside the retry boundary.
     for attempt in (1, 2):
         try:
-            raw = _raw_gemini_call(prompt)
+            out = _sanitize(_raw_gemini_call(prompt), rec)
             break
         except genai_errors.APIError as e:
-            api_err = e
-            time.sleep(1.0 * attempt)
-    if raw is None:
-        raise RuntimeError(
-            f"Gemini API error for id={rec['id']} (not cached, safe to retry): {api_err}"
-        ) from api_err
-
-    # --- validate / sanitize model output; malformed -> null placeholder ---
-    try:
-        out = _sanitize(raw, rec)
-    except (ValidationError, json.JSONDecodeError, ValueError) as e:
-        sys.stderr.write(f"[analyzer] malformed output id={rec['id']}: {e}\n")
-        out = NULL_OUTPUT
-        _save_cache(key, {"id": rec["id"], "student_id": rec["student_id"],
-                          "output": out.model_dump(), "failed": True, "error": str(e)})
-        return out
+            if attempt == 2:
+                raise RuntimeError(
+                    f"Gemini API error for id={rec['id']} (not cached, safe to retry): {e}"
+                ) from e
+            time.sleep(1.0)
+        except (ValidationError, json.JSONDecodeError, ValueError) as e:
+            if attempt == 1:
+                continue
+            sys.stderr.write(f"[analyzer] malformed output id={rec['id']}: {e}\n")
+            out = NULL_OUTPUT
+            _save_cache(key, {"id": rec["id"], "student_id": rec["student_id"],
+                              "output": out.model_dump(), "failed": True, "error": str(e)})
+            return out
 
     _save_cache(key, {"id": rec["id"], "student_id": rec["student_id"],
                       "output": out.model_dump()})

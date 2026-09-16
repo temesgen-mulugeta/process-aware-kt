@@ -38,7 +38,7 @@ def _tiny_table_and_store():
     for pos, (cor, sp) in enumerate(zip(corrects, splits)):
         rid = 100 + pos
         table.append({"id": rid, "student_id": 1, "seq_pos": pos, "split": sp})
-        store[(rid, 1)] = _step(correct=cor)
+        store[(1, pos)] = _step(correct=cor)
     return table, store, corrects
 
 

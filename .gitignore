@@ -22,3 +22,10 @@ venv/
 
 # --- os ---
 .DS_Store
+
+# Report compilation intermediates (final PDF is retained)
+tmp/
+output/pdf/*.aux
+output/pdf/*.log
+output/pdf/*.out
+.pytest_cache/

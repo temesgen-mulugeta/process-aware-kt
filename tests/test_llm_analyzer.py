@@ -112,3 +112,53 @@ def test_build_prompt_contains_concept_list_and_correctness():
     assert C.CONCEPTS[0] in prompt
     assert "incorrect" in prompt
     assert "correct" in A.build_prompt(_rec(correct=True))
+
+
+# Parsing happens inside the raw call, not just in the later sanitizer.
+def test_malformed_json_retries_then_caches_failure(tmp_path, monkeypatch):
+    import json
+    monkeypatch.setattr(A, 'MOCK', False)
+    monkeypatch.setattr(C, 'LLM_FEATURES', tmp_path)
+    calls = []
+    def broken(prompt):
+        calls.append(prompt)
+        raise json.JSONDecodeError('bad JSON', '{', 1)
+    monkeypatch.setattr(A, '_raw_gemini_call', broken)
+    out = A.analyze(_rec())
+    assert out == A.NULL_OUTPUT
+    assert len(calls) == 2
+    cached = json.loads(next(tmp_path.glob('*.json')).read_text())
+    assert cached['failed'] is True
+    A.analyze(_rec())
+    assert len(calls) == 2
+
+
+def test_schema_failure_then_valid_response(tmp_path, monkeypatch):
+    monkeypatch.setattr(A, 'MOCK', False)
+    monkeypatch.setattr(C, 'LLM_FEATURES', tmp_path)
+    calls = []
+    def recover(prompt):
+        calls.append(prompt)
+        if len(calls) == 1:
+            return A.AnalyzerOutput.model_validate({'error_type': 'invalid'})
+        return _valid_output()
+    monkeypatch.setattr(A, '_raw_gemini_call', recover)
+    assert A.analyze(_rec()) == _valid_output()
+    assert len(calls) == 2
+
+
+def test_api_errors_never_cache_placeholder(tmp_path, monkeypatch):
+    import pytest
+    from google.genai import errors
+    monkeypatch.setattr(A, 'MOCK', False)
+    monkeypatch.setattr(C, 'LLM_FEATURES', tmp_path)
+    monkeypatch.setattr(A.time, 'sleep', lambda _: None)
+    calls = []
+    def unavailable(prompt):
+        calls.append(prompt)
+        raise errors.APIError(503, {'error': {'message': 'unavailable', 'status': 'UNAVAILABLE'}})
+    monkeypatch.setattr(A, '_raw_gemini_call', unavailable)
+    with pytest.raises(RuntimeError, match='not cached'):
+        A.analyze(_rec())
+    assert len(calls) == 2
+    assert not list(tmp_path.glob('*.json'))

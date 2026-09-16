@@ -88,8 +88,9 @@ def focal_deficiency_loss(logits: torch.Tensor, target: torch.Tensor,
     """Masked focal BCE over the associated-concept entries only.
 
     Only positions where the concept is *associated* with the target question are
-    valid candidates (missing ⊂ associated), so we average the focal loss over
-    those entries. Focal loss down-weights easy negatives, which dominate here.
+    allowed by this model, so we average the focal loss over those entries.
+    Source labels outside this mask are ignored by the loss, but retained by
+    evaluation; see the data-integrity audit. Focal loss down-weights easy negatives, which dominate here.
     """
     valid = assoc_mask > 0.5                                  # [T-1, 55] bool
     if valid.sum() == 0:
