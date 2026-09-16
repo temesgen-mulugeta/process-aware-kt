@@ -440,7 +440,17 @@ $44/87=50.6\%$ agreement. Table~\ref{tab:analyzer} reports per-class precision/r
 On 45 gold-deficient records (49 concept labels), exact-concept micro precision is
 27.0\% and recall 20.4\%, without an associated-concept filter. These conditional
 scores exclude gold-negative cases. The 75\% spot check is not representative. Always predicting wrong operation/concept gives 54/87 = 62.1\% accuracy, above the analyzer. The analyzer's six-class macro-F1 is 16.1\%.
-\input{report/generated/analyzer.tex}
+\begin{table}[htbp]\centering\small
+\caption{Error-type agreement on all 87 annotated wrong validation answers. Undefined precision/recall is reported as zero.}\label{tab:analyzer}
+\begin{tabular}{@{}lrrr@{}}\toprule
+Gold class & Support & Precision & Recall\\\midrule
+Wrong operation/concept & 54 & 0.695 & 0.759\\
+Lack of concepts & 11 & 0.000 & 0.000\\
+Calculation & 8 & 0.176 & 0.375\\
+Incomplete answer & 13 & 0.000 & 0.000\\
+Careless & 1 & 0.000 & 0.000\\
+None & 0 & 0.000 & 0.000\\
+\bottomrule\end{tabular}\end{table}
 
 \subsection{Main result: do the LLM features help?}
 
@@ -564,7 +574,20 @@ Table~\ref{tab:ablations} adds every signal subset on the same split and five se
 Error type alone has the highest exploratory mean (32.00\%), identified after inspecting the ablations and not independently validated; removing the summary
 from B gives 29.98\%, a gain of 2.59 points. Input sizes and parameter counts also
 change, so these are feature-removal comparisons, not isolated causal effects.
-\input{report/generated/ablations.tex}
+\begin{table}[htbp]\centering\small
+\caption{All signal subsets on the same five seeds and official split. M: missing concepts; E: error type; S: summary. Parameters include the allocated error embedding, even where unused.}\label{tab:ablations}
+\begin{tabular}{@{}lrrrr@{}}\toprule
+Inputs & F1@13 & SD & $\Delta$ vs A (pp) & Parameters\\\midrule
+A & 24.28 & 3.92 & +0.00 & 34920\\
+A + M & 23.29 & 1.65 & -0.98 & 49000\\
+A + E & 32.00 & 1.73 & +7.73 & 36968\\
+A + S & 23.61 & 1.18 & -0.67 & 133224\\
+A + M + E & 29.98 & 3.46 & +5.70 & 51048\\
+A + M + S & 22.97 & 1.21 & -1.31 & 147304\\
+A + E + S & 25.56 & 2.87 & +1.29 & 135272\\
+A + M + E + S (B) & 27.39 & 5.03 & +3.11 & 149352\\
+Gold M + E (C) & 32.06 & 1.94 & +7.79 & 149352\\
+\bottomrule\end{tabular}\end{table}
 
 Table~\ref{tab:students} gives per-student results and six leave-one-student-out
 (LOSO) folds at seed 0, with the same hyperparameters. The held student never
@@ -572,7 +595,17 @@ selects weights or thresholds; their past history is available at inference on t
 Pooled LOSO F1@13 is A 25.70\%, B 24.43\%, C 31.08\% (chronological seed 0:
 22.93\%, 23.64\%, 31.14\%). B's gain does not extend to unseen students here.
 Folds share training students and are not independent samples.
-\input{report/generated/students.tex}
+\begin{table}[htbp]\centering\small
+\caption{Per-student F1@13 (percent): chronological means over five seeds, LOSO at seed 0. Pos. counts concept labels.}\label{tab:students}
+\begin{tabular}{@{}lrrrrrrrr@{}}\toprule
+Student & Targets & Pos. & A & B & C & LOSO A & LOSO B & LOSO C\\\midrule
+S1 & 68 & 8 & 7.69 & 7.69 & 7.69 & 7.69 & 0.00 & 7.69\\
+S2 & 68 & 4 & 1.54 & 1.54 & 2.56 & 0.00 & 0.00 & 0.00\\
+S3 & 68 & 10 & 10.00 & 9.23 & 9.23 & 7.69 & 16.03 & 18.28\\
+S4 & 66 & 8 & 13.53 & 13.42 & 13.40 & 15.85 & 15.85 & 13.29\\
+S5 & 68 & 19 & 27.41 & 32.48 & 40.87 & 40.64 & 28.39 & 38.46\\
+S6 & 66 & 10 & 18.67 & 17.44 & 17.86 & 19.57 & 19.96 & 16.61\\
+\bottomrule\end{tabular}\end{table}
 
 Averaged over five seeds on the 511 associated test entries, ten-bin, equal-width ECE is .1803/.1789/.1798 for A/B/C;
 Brier scores are .1267/.1255/.1252. Masked zeros are excluded. These scores are not

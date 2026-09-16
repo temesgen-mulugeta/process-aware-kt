@@ -10,8 +10,7 @@ Review diagnostics add a mask-only rule: **27.50% F1@13 and 15.20% F1@55**, so f
 
 The revision fixes a feature-store bug: repeated `(id, student_id)` keys overwrote distinct occurrence labels, including a training occurrence with a later test occurrence's gold labels. Features now use `(student_id, seq_pos)`. All results were rerun; the old results are explicitly historical.
 
-- Main report: `Process-Aware-KT-Final-Report.tex` is a 10-page revision (including references) made directly from the submitted draft preserved in `report/original/Process-Aware-KT-Report-Short.tex`, with local corrections and short additions. Detailed diagnostic tables remain in `report/generated/` and `results/revisions/`. The complete source comparison is `report/ORIGINAL_REPORT_REVISION.diff`.
-- Retained rewritten comparison: `Process-Aware-KT-Rewritten-Comparison.tex` and `output/pdf/Process-Aware-KT-Rewritten-Comparison.pdf`. Its tables/references are frozen under `report/comparison/`, so later main-report updates do not change the comparison.
+- Main report: `Process-Aware-KT-Final-Report.tex` is the single LaTeX source for the 10-page report (including references), with its tables included directly. Earlier report sources remain available in Git history. Detailed diagnostics are in `report/Diagnostic-Supplement.md` and `results/revisions/`.
 - Compiled report: `output/pdf/Process-Aware-KT-Final-Report.pdf`.
 - Plan and completed comment audit: `ADVISOR_REVISIONS_PLAN.md`.
 - Complete results: `results/revisions/summary.json`, 63 run JSON/NPZ pairs, thresholds, support, per-student diagnostics, calibration and analyzer agreement.
